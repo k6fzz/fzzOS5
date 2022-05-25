@@ -1,0 +1,154 @@
+#include "gdt.h"
+#include "../memory/memory.h"
+#include "../util/printf.h"
+
+struct GDTPointer
+{
+    uint16_t limit;
+    uint64_t base;
+}__attribute__((packed))
+__attribute__((aligned(8)));
+
+uint8_t ist1[4096];
+uint8_t ist2[4096];
+uint8_t ist3[4096];
+
+struct TSS
+{
+    uint32_t reserved0;
+    uint64_t rsp0;
+    uint64_t rsp1;
+    uint64_t rsp2;
+    uint64_t reserved1;
+    uint64_t ist1;
+    uint64_t ist2;
+    uint64_t ist3;
+    uint64_t ist4;
+    uint64_t ist5;
+    uint64_t ist6;
+    uint64_t ist7;
+    uint64_t reserved2;
+    uint16_t reserved3;
+    uint16_t iopb_offset;
+}__attribute__((packed));
+
+struct GDTEntry
+{
+    uint16_t limit0;
+    uint16_t base0;
+    uint8_t base1;
+    uint8_t type;
+    uint8_t limit_flags;
+    uint8_t base2;
+}__attribute__((packed));
+
+/*struct GDT
+{
+    struct GDTEntry null0;
+    struct GDTEntry kernel_code;
+    struct GDTEntry kernel_data;
+    struct GDTEntry null1;
+    struct GDTEntry user_data;
+    struct GDTEntry user_code;
+    struct GDTEntry omvf_data;
+    struct GDTEntry omvf_code;
+    struct GDTEntry tss_low;
+    struct GDTEntry tss_high;
+}__attribute__((packed));*/
+
+struct GDTraw
+{
+    uint64_t null;
+    uint64_t kernelcode64;
+    uint64_t kerneldata64;
+    uint64_t usercode64;
+    uint64_t userdata64;
+    uint64_t tss_low;
+    uint64_t tss_high;
+}__attribute__((packed))
+__attribute__((aligned(8)));
+
+struct GDT
+{
+    struct GDTEntry null;
+    struct GDTEntry code16;
+    struct GDTEntry data16;
+    struct GDTEntry code32;
+    struct GDTEntry data32;
+    struct GDTEntry code64;
+    struct GDTEntry data64;
+    struct GDTEntry tss_low;
+    struct GDTEntry tss_high;
+}__attribute__((packed))
+__attribute__((aligned(8)));
+
+
+/*static struct GDTraw gdt = 
+{
+    0,
+    0x00209A0000000000,
+    0x0020920000000000,
+    0,
+    0,
+    0,
+    0,
+};*/
+
+static struct GDTPointer    gdt_pointer;
+static struct TSS           tss;
+/*static struct GDT           gdt =
+{
+    {0, 0, 0, 0x00, 0x00, 0},   //null
+    {0, 0, 0, 0x92, 0x20, 0},   //Kernel Code
+    {0, 0, 0, 0x98, 0x20, 0},   //Kernel Data
+    {0, 0, 0, 0x00, 0x00, 0},   //null
+    {0, 0, 0, 0xF8, 0x20, 0},   //User Code
+    {0, 0, 0, 0xF2, 0x20, 0},   //User Data
+    {0, 0, 0, 0x9A, 0xA0, 0},   //OMVF Data
+    {0, 0, 0, 0x92, 0xA0, 0},   //OMVF Code
+    {0, 0, 0, 0x89, 0xA0, 0},   //TSS Low
+    {0, 0, 0, 0x00, 0x00, 0}    //TSS High
+};*/
+
+static struct GDT gdt =
+{
+    // limit, base0, base1, type, limitflags, base2
+    {0, 0, 0, 0x00, 0x00, 0},                                   //0x00 null
+    {0xffff, 0x0000, 0x00, 0b10011010, 0b00000000, 0x00},       //0x08 code16
+    {0xffff, 0x0000, 0x00, 0b10010010, 0b00000000, 0x00},       //0x10 data16
+    {0xffff, 0x0000, 0x00, 0b10011010, 0b11001111, 0x00},       //0x18 code32
+    {0xffff, 0x0000, 0x00, 0b10010010, 0b11001111, 0x00},       //0x20 data32
+    {0x0000, 0x0000, 0x00, 0b10010010, 0b00100000, 0x00},       //0x28 code64
+    {0x0000, 0x0000, 0x00, 0b10010010, 0b00000000, 0x00},       //0x30 data64
+    {0, 0, 0, 0x00, 0x00, 0},                                   //0x38 tss low
+    {0, 0, 0, 0x00, 0x00, 0},                                   //0x40 tss high
+};
+
+extern void loadGDT(struct GDTPointer* gdtPointer);
+
+void gdt_init()
+{
+    //Zero the TSS
+    for(uint64_t i = 0; i < sizeof(tss); i++)
+        ((uint8_t*)(void*)&tss)[i] = 0;
+
+    uint64_t tss_base = ((uint64_t)&tss);
+
+    gdt.tss_low.base0 = tss_base & 0xffff;
+    gdt.tss_low.base1 = (tss_base >> 16) & 0xff;
+    gdt.tss_low.base2 = (tss_base >> 24) & 0xff;
+    gdt.tss_low.limit0 = sizeof(tss);
+    gdt.tss_high.limit0 = (tss_base >> 32) & 0xffff;
+    gdt.tss_high.base0 = (tss_base >> 48) & 0xffff;
+    
+   
+    gdt_pointer.limit = sizeof(gdt) - 1;
+    gdt_pointer.base = (uint64_t)&gdt;
+    
+    uint64_t gdtptr = hh_code_to_phys((uint64_t)&gdt_pointer);
+
+    printf("GDT Ptr: %p   %p", &gdt_pointer, gdtptr);
+    printf("GDT: %p", gdt_pointer.base);
+
+    loadGDT(&gdt_pointer);
+};

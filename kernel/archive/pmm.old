@@ -1,0 +1,150 @@
+/*struct pmm_info_t
+{
+    uint64_t freemem;
+    uint64_t usedmem;
+    uint64_t reservedmem;
+    uint64_t totalmem;      
+}pmm_info;*/
+
+//struct pmm_info_t pmm_info = {};
+//struct pmm_bitmap_t bitmap;
+
+/*
+void pmm_init()
+{
+    uint64_t mmap_entries = boot_info.tag_memmap->entries;
+    struct stivale2_mmap_entry* current_entry;
+    void* mmap_largest_segment = NULL;  //Address of the largest segment
+    uint64_t mmap_largest_size = 0;     //Size of the largest segment
+
+    //iterate through the memory map, find the largest memory segment
+    for (uint64_t i = 0; i < mmap_entries; i++)
+    {
+        current_entry = &boot_info.tag_memmap->memmap[i];
+        printf("Addr: 0x%x  Size: %d  Type: %X\n", current_entry->base, current_entry->length, current_entry->type);
+
+        if(current_entry->base < 0xb0000000)
+            pmm_info.totalmem = pmm_info.totalmem + current_entry->length;
+
+        if(current_entry->type != 1)
+        {
+            continue;
+        }
+
+        if(current_entry->length > mmap_largest_size)
+        {
+            mmap_largest_segment = (void*)current_entry->base;
+            mmap_largest_size = current_entry->length;
+        }
+    };
+
+    //How many pages is the largest segment?
+    uint64_t largest_total_pages = mmap_largest_size / MM_PAGE_SIZE;
+
+    //How large does the bitmap need to be?
+    uint64_t bitmap_size = pmm_info.totalmem / 8 + 1;     //8 bits to a byte, 1 bit per page
+    uint64_t bitmap_size_pages = bitmap_size / MM_PAGE_SIZE;
+    if (bitmap_size % MM_PAGE_SIZE)
+        bitmap_size_pages++;
+
+    printf("Largest Addr: %x  Size (bytes): %d  Size (pages): %d\n", mmap_largest_segment, mmap_largest_size, largest_total_pages);
+    printf("Total Memory: %d (bytes)\n", pmm_info.totalmem);
+    printf("Bitmap Size (bytes): %d  (pages): %d\n", bitmap_size, bitmap_size_pages);
+
+    //Let's find a place to put the bitmap
+    uint64_t bitmap_segment = 0;
+    uint64_t bitmap_segment_size = 0;
+
+    for (uint64_t i = 0; i < mmap_entries; i++)
+    {
+        current_entry = &boot_info.tag_memmap->memmap[i];
+        //printf("Addr: 0x%x  Size: %d  Type: %d\n", current_entry->base, current_entry->length, current_entry->type);
+
+        if(current_entry->type != 1)
+        {
+            continue;
+        }
+
+        if(current_entry->length > bitmap_size && (uint64_t)current_entry->base != (uint64_t)mmap_largest_segment)
+        {
+            bitmap_segment = current_entry->base;
+            bitmap_segment_size = current_entry->length;
+            break;
+        }
+    };
+
+    printf("Bitmap Addr: 0x%x  Size(bytes): %d\n", bitmap_segment, bitmap_segment_size);
+
+    //Translate the Bitmap Address to the Higher Half and populate the bitmap info struct
+    uint64_t work = 0xFFFF800000000000 + bitmap_segment;
+    bitmap.size = bitmap_size;
+    bitmap.address = (uint8_t*)work;
+
+
+    /* bitmap test code, deprecated
+    
+    printf("Bitmap Map: %X  %p\n", work, work);
+
+
+    //bitmap.address[0] = 0xEA;
+
+    setBitmap(&bitmap, 5, true);
+
+    printf("Bitmap Test, %X  %p\n",bitmap.address[0], bitmap.address[0]);
+
+    bool bitmapTest = getBitmap(&bitmap, 5);
+
+    if(bitmapTest)
+        printf("True!");
+    else
+        printf("False!");
+    
+    
+    //Set everything to used
+    memset(bitmap.address, 0xFF, bitmap.size);
+
+    //Mark available memory as free
+    for (uint64_t i = 0; i < mmap_entries; i++)
+    {
+        current_entry = &boot_info.tag_memmap->memmap[i];
+        
+        if(current_entry->type == STIVALE2_MMAP_USABLE)
+        {
+            pmm_info.freemem += current_entry->length;
+            for(uint64_t i = current_entry->base; i < current_entry->length; i+=4096) 
+            {
+                uint64_t index = (uint64_t)i / 4096;
+                setBitmap(&bitmap, index, false);
+            }
+        }
+    };
+
+    printf("Free Memory: %d\n", pmm_info.freemem);
+}
+
+
+
+void pmm_freepage(void* page)
+{
+    uint64_t index = (uint64_t)page / 4096;
+    setBitmap(&bitmap, index, false);
+    pmm_info.freemem += 4096;
+}
+
+void* pmm_allocpage()
+{
+    for(uint64_t index = 0; index < (bitmap.size * 8); index++)
+    {
+        if(!getBitmap(&bitmap, index))
+        {
+            pmm_info.freemem -= 4096;
+            setBitmap(&bitmap, index, true);
+            printf("Alloc: %p   Free: %d\n", (index*4096), pmm_info.freemem);
+            return (void*)(index * 4096);
+        }
+    }
+
+    return NULL;
+}
+
+*/

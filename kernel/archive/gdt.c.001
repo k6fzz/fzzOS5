@@ -1,0 +1,67 @@
+#include "gdt.h"
+
+#include "../libk/kstring.h"
+#include "../util/printf.h"
+
+struct gdt_entry
+{
+    uint16_t limit15_0;
+    uint16_t base15_0;
+    uint8_t base23_16;
+    uint8_t type;
+    uint8_t flags;
+    uint8_t base31_24;
+}__attribute__((packed));
+
+struct gdt_ptr
+{
+    uint16_t limit;
+    uint64_t base;
+}__attribute__((packed));
+
+struct gdt_ptr gdtr = {0, 0};
+
+struct gdt_entry gdt[8] = 
+{
+    {0x0000, 0x0000, 0x00, 0x00, 0x00, 0x00},
+    {0xFFFF, 0x0000, 0x00, 0x9A, 0xAF, 0x00},       //0x08, Kernel Code
+    {0xFFFF, 0x0000, 0x00, 0x92, 0xAF, 0x00},       //0x10, Kernel Data
+    {0xFFFF, 0x0000, 0x00, 0xFA, 0xAF, 0x00},       //0x18, User Code
+    {0xFFFF, 0x0000, 0x00, 0xF2, 0xAF, 0x00},       //0x20, User Data
+    {0x0000, 0x0000, 0x00, 0x00, 0x00, 0x00},       //0x28, Reserved
+    {0x0000, 0x0000, 0x00, 0x00, 0x00, 0x00},       //0x30, TSS_High
+    {0x0000, 0x0000, 0x00, 0x00, 0x00, 0x00},       //0x38, TSS_Low
+};
+
+
+struct tss {
+    uint32_t reserved0; uint64_t rsp0;      uint64_t rsp1;
+    uint64_t rsp2;      uint64_t reserved1; uint64_t ist1;
+    uint64_t ist2;      uint64_t ist3;      uint64_t ist4;
+    uint64_t ist5;      uint64_t ist6;      uint64_t ist7;
+    uint64_t reserved2; uint16_t reserved3; uint16_t iopb_offset;
+} tss;
+
+extern load_gdt(uint64_t gdt_ptr);
+
+void gdt_init()
+{
+    gdtr.limit = (sizeof(gdt) - 1);
+    gdtr.base = (uint64_t)&gdt;
+
+    memset(&tss, 0, sizeof(tss));
+
+    uint64_t tss_base = (uint64_t)&tss;
+
+    gdt[6].base15_0 = tss_base & 0xFFFF;
+    gdt[6].base23_16 = (tss_base >> 16) & 0xFF;
+    gdt[6].base31_24 = (tss_base >> 24) & 0xFF;
+    gdt[6].limit15_0 = sizeof(tss);
+    gdt[7].limit15_0 = (tss_base >> 32) & 0xFFFF;
+    gdt[7].base15_0 = (tss_base >> 48) & 0xFFFF;
+
+
+
+    //load_gdt((uint64_t)&gdtr);
+
+}
