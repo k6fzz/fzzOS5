@@ -5,6 +5,13 @@ global isr_stub_table:object (isr_stub_table.end - isr_stub_table)
 global idt_load:function (idt_load.end - idt_load)
 global int_test:function
 
+global read_cr2:function (read_cr2.end - read_cr2)
+
+read_cr2:
+    mov rax, cr2
+    ret
+.end:
+
 %macro _pushaq 0
     push rax
     push rbx
@@ -67,7 +74,7 @@ _interrupt_common:
     _popaq
     add rsp, 16
     iretq
-.end
+.end:
 
 INT_NOERR 0
 INT_NOERR 1

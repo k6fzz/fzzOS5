@@ -14,6 +14,7 @@
 
 //Higher Half Data Offset     0xFFFF800000000000
 //Higher Half Code Offset     0xFFFFFFFF80000000UL
+//Higher Half Heap Offset     0xFFFFFFFFC0000000UL
 
 
 

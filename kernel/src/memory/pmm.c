@@ -5,17 +5,9 @@
 #include "../boot/stivale2.h"
 //#include "bitmap.h"
 
-#define PAGE_SIZE 4096
-#define KB_TO_PAGE(x) (((x)*1024)/PAGE_SIZE)
 
-struct
-{
-    uint64_t totalmem;          //Size of memory in bytes
-    uint64_t usedpages;         //Number of used pages
-    uint64_t totalpages;        //Number of total pages
-    uint8_t* bitmap;            //Address of Bitmap
-    uint64_t bitmap_size;       //Size of Bitmap, in bytes 
-}pmm_info;
+
+struct pmm_info pmm_info;
 
 /*static const char* pmm_mmap_type[10] = 
 {
@@ -111,6 +103,10 @@ void pmm_init()
         //Calculate total memory
         pmm_info.totalmem = pmm_info.totalmem + current_entry->length;
         
+        //Capture Kernel Physical Location
+
+        
+        
         //If memory isn't usable, continue
         if(current_entry->type != 1)
         {
@@ -185,8 +181,6 @@ void pmm_init()
 
     printf("Available Pages: %d\n", (pmm_info.totalpages - pmm_info.usedpages));
     printf("PMM Initialized\n");
-
-   
 
 }
 

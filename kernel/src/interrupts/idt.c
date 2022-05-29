@@ -70,6 +70,7 @@ static struct idt_ptr idtr;
 
 extern void* isr_stub_table[];
 extern void idt_load(struct idt_ptr* idtr);
+extern uint64_t read_cr2();
 
 uint64_t pit_ticks = 0;
 
@@ -126,8 +127,9 @@ uint64_t interrupt_handler(uint64_t rsp)
         if(frame->cs == 0x08)
         {
             //kernel panic
+            uint64_t cr2 = read_cr2();
             serial_write(0x3F8, 'e');
-            printf("CPU Exception! INT %d   ERR %x\n", frame->int_no, frame->err_no);
+            printf("\nCPU Exception! INT %d   ERR %x  CR2 %p\n", frame->int_no, frame->err_no, cr2);
             printf(_exception_messages[frame->int_no]);
             printf("\n");
             printf("SS: %x  RSP: %x  RFLAGS: %x  CS: %x  RIP: %x\n", frame->ss, frame->rsp, frame->rflags, frame->cs, frame->rip);
