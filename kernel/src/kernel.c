@@ -14,6 +14,8 @@
 #include "./memory/liballoc.h"
 
 
+
+
 void kernel()
 {
 
@@ -39,16 +41,13 @@ void kernel()
 
     //int_test();
 
+ 
     printf("Kernel Done!\n");
 
     //putchar('x');
 
     //serial_write(0x3F8, 'x');
-    for(int i=0;i<14;i++)
-    {
-        //uint64_t* memory = kmalloc(256);
-        //printf("%p\n", memory);
-    }
+
 
     while(true)
     {

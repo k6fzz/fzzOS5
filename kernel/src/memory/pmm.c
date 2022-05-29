@@ -17,6 +17,20 @@ struct
     uint64_t bitmap_size;       //Size of Bitmap, in bytes 
 }pmm_info;
 
+/*static const char* pmm_mmap_type[10] = 
+{
+    "UNKNOWN",
+    "STIVALE2_MMAP_USABLE",                 //1
+    "STIVALE2_MMAP_RESERVED",               //2
+    "STIVALE2_MMAP_ACPI_RECLAIMABLE",       //3
+    "STIVALE2_MMAP_ACPI_NVS" ,              //4
+    "STIVALE2_MMAP_BAD_MEMORY",             //5
+    "STIVALE2_MMAP_BOOTLOADER_RECLAIMABLE", //0x1000
+    "STIVALE2_MMAP_KERNEL_AND_MODULES",     //0x1001
+    "STIVALE2_MMAP_FRAMEBUFFER" ,           //0x1002
+};
+*/
+
 //Bitmap helpers
 static inline void bitmap_set(uint8_t* bitmap, uint64_t bit) 
 {
@@ -51,6 +65,32 @@ static inline uint64_t get_first_unset(uint8_t* bitmap, uint64_t size)
     return 0;
 }
 
+/*static inline char* pmm_get_mmap_type(uint64_t type)
+{
+    switch(type)
+    {
+        case 1:
+            return &pmm_mmap_type[1];
+        case 2:
+            return &pmm_mmap_type[2];
+        case 3:
+            return &pmm_mmap_type[3];
+        case 4:
+            return &pmm_mmap_type[4];
+        case 5:
+            return &pmm_mmap_type[5];
+        case 0x1000:
+            return &pmm_mmap_type[6];
+        case 0x1001:
+            return &pmm_mmap_type[7];
+        case 0x1002:
+            return &pmm_mmap_type[8];
+        default:
+            return &pmm_mmap_type[0];
+    }
+    return NULL;
+}*/
+
 //Initialize the Physical Memory Manager
 void pmm_init()
 {
@@ -59,12 +99,14 @@ void pmm_init()
     struct stivale2_mmap_entry* current_entry = NULL;
     uint64_t mmap_largest_segment_base = 0;     //Address of the largest segment
     uint64_t mmap_largest_segment_size = 0;     //Size of the largest segment
+    //uint8_t* type = NULL;
 
     //iterate through the memory map, find the largest memory segment, calculate total memory size
     for (uint64_t i = 0; i < mmap_entries; i++)
     {
         current_entry = &boot_info.tag_memmap->memmap[i];
-        //printf("Addr: 0x%x  Size: %d  Type: %X\n", current_entry->base, current_entry->length, current_entry->type);
+        //type = pmm_get_mmap_type(current_entry->type);
+        printf("Addr: 0x%x  Size: %d  Type: %x\n", current_entry->base, current_entry->length, current_entry->type);
 
         //Calculate total memory
         pmm_info.totalmem = pmm_info.totalmem + current_entry->length;
@@ -90,15 +132,15 @@ void pmm_init()
     
     if(pmm_info.bitmap_size > current_entry->length) 
         {
-            //printf("Bitmap too large");
+            printf("Bitmap too large");
             for(;;){}   //hang
         }
     
     pmm_info.bitmap = (uint8_t*)phys_to_hh_data(mmap_largest_segment_base); 
 
-    //printf("Total Memory (KB): %d\n", (pmm_info.totalmem/1024));
-    //printf("Total Pages: %d   Used Pages: %d\n", pmm_info.totalpages, pmm_info.usedpages);
-    //printf("Bitmap Addr: %p  Bitmap Size (bytes): %d\n", pmm_info.bitmap, pmm_info.bitmap_size);
+    printf("Total Memory (KB): %d\n", (pmm_info.totalmem/1024));
+    printf("Total Pages: %d   Used Pages: %d\n", pmm_info.totalpages, pmm_info.usedpages);
+    printf("Bitmap Addr: %p  Bitmap Size (bytes): %d\n", pmm_info.bitmap, pmm_info.bitmap_size);
 
     //Set all bitmap bits to 1
     for (uint64_t i = 0; i < pmm_info.bitmap_size; i++)
@@ -141,8 +183,8 @@ void pmm_init()
     bitmap_set(pmm_info.bitmap, 0);
     pmm_info.usedpages++;
 
-    //printf("Available Pages: %d\n", (pmm_info.totalpages - pmm_info.usedpages));
-    //printf("PMM Initialized\n");
+    printf("Available Pages: %d\n", (pmm_info.totalpages - pmm_info.usedpages));
+    printf("PMM Initialized\n");
 
    
 

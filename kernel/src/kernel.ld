@@ -22,9 +22,11 @@ SECTIONS
     /* that is the beginning of the region. */
     . = 0xffffffff80000000;
     _start_of_kernel = .;
+    _start_of_text = .;
     .text : {
         *(.text .text.*)
     } :text
+    _end_of_text = .;
 
     /* Move to the next memory page for .rodata */
     . += CONSTANT(MAXPAGESIZE);
@@ -35,22 +37,27 @@ SECTIONS
         KEEP(*(.stivale2hdr))
     } :rodata
 
+    _start_of_rodata = .;
     .rodata : {
         *(.rodata .rodata.*)
     } :rodata
+    _end_of_rodata = .;
 
     /* Move to the next memory page for .data */
     . += CONSTANT(MAXPAGESIZE);
-
+    _start_of_data = .;
     .data : {
         *(.data .data.*)
     } :data
+    _end_of_data = .;
 
+    _start_of_bss = .;
     .bss : {
         _bss = .;
         *(COMMON)
         *(.bss .bss.*)
         _bss_end = .;
     } :data
+    _end_of_bss = .;
     _end_of_kernel = .;
 }

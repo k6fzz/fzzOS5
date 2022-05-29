@@ -15,8 +15,7 @@
 //Higher Half Data Offset     0xFFFF800000000000
 //Higher Half Code Offset     0xFFFFFFFF80000000UL
 
-extern uint64_t read_cr3();
-extern void write_cr3(uint64_t value);
+
 
 static inline uint64_t hh_data_to_phys(uint64_t addr)
 {

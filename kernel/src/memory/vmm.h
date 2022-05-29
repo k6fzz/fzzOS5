@@ -20,10 +20,12 @@ struct PageTable
     uint64_t entry[512];
 }__attribute__((packed));
 
+
+
 extern struct PageTable* RootPageDirectory;
 
 void vmm_init();
-void vmm_map_page(uint64_t physical, uint64_t virtual, uint64_t flags);
+void vmm_map_page(struct PageTable* pagetable, uint64_t virtual, uint64_t physical, uint64_t flags);
 void vmm_unmap_page(uint64_t virtual);
 
 uint8_t vmm_get_index(uint64_t addr, uint8_t level);
