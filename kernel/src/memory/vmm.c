@@ -18,6 +18,41 @@ struct PageTable* vmm_create_page_table()
     return (struct PageTable*)phys_to_hh_data((uint64_t)page);
 }
 
+//returns a physical address for a given virtual address
+uint64_t vmm_pagewalk(uint64_t vaddr)
+{
+    uint64_t* PML4 = (uint64_t*)read_cr3();
+    
+    uint64_t index1, index2, index3, index4;
+    vaddr >>= 12;
+    index1 = vaddr & 0x1ff;
+
+    vaddr >>= 9;
+    index2 = vaddr & 0x1ff;
+
+    vaddr >>= 9;
+    index3 = vaddr & 0x1ff;
+
+    vaddr >>= 9;
+    index4 = vaddr & 0x1ff;
+
+    printf("%d  %d  %d  %d\n", index4, index3, index2, index1);
+    
+    uint64_t* PDPTE = (uint64_t*)((PML4[index4] >> 12) * 4096);
+    uint64_t* PDE = (uint64_t*)((PDPTE[index3] >> 12) * 4096);
+    uint64_t* PTE = (uint64_t*)((PDE[index2] >> 12) * 4096);
+    uint64_t* PD = (uint64_t*)((PTE[index1] >> 12) * 4096);
+
+    printf("PD: %p\n", PD);
+
+    uint64_t pageaddr = (uint64_t)PD;
+    pageaddr >>= 12;
+    pageaddr *= 4096;
+
+
+    return pageaddr;
+}
+
 void vmm_init()
 {
     printf("VMM Init\n");
@@ -34,6 +69,11 @@ void vmm_init()
     printf("%p\n", newPageTable);
     printf("%p\n", newPageTable->entry[0]);
     
+    printf("Start of Kernel: %p\n", &_start_of_kernel);
+    printf("End of Kernel:   %p\n", &_end_of_kernel);
+
+    vmm_pagewalk((uint64_t)&_start_of_kernel);
+    vmm_pagewalk((uint64_t)&_end_of_kernel);
     
     //printf("PML4[0] = %p\n", (uint64_t)PML4[0]);
 
