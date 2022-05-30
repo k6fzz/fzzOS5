@@ -35,7 +35,7 @@ void kernel()
 
     serial_write(0x3F8, 'k');
     
-    serial_write_str(SERIAL_PORT1, "Testing!");
+    serial_write_str(SERIAL_PORT1, "Testing!\n\rMore Testing!");
 
     //acpi_init();
 

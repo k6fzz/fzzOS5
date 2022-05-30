@@ -45,10 +45,10 @@ void serial_write(uint16_t port, uint8_t data)
     outb(port, data);
 }
 
-void serial_write_str(uint16_t port, uint8_t* data)
+void serial_write_str(uint16_t port, char* data)
 {
     uint8_t i = 0;
-    while(!data)
+    while(data[i] != 0)
     {
         serial_write(port, data[i]);
         i++;
