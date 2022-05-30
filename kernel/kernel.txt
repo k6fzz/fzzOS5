@@ -8,9 +8,9 @@ ELF Header:
   Type:                              EXEC (Executable file)
   Machine:                           Advanced Micro Devices X86-64
   Version:                           0x1
-  Entry point address:               0xffffffff80000490
+  Entry point address:               0xffffffff80000450
   Start of program headers:          64 (bytes into file)
-  Start of section headers:          118952 (bytes into file)
+  Start of section headers:          126632 (bytes into file)
   Flags:                             0x0
   Size of this header:               64 (bytes)
   Size of program headers:           56 (bytes)
@@ -25,11 +25,11 @@ Program Headers:
   NULL           0x0000000000000000 0x0000000000000000 0x0000000000000000
                  0x0000000000000000 0x0000000000000000         0x8
   LOAD           0x0000000000001000 0xffffffff80000000 0xffffffff80000000
-                 0x000000000000356e 0x000000000000356e  R E    0x1000
-  LOAD           0x0000000000004580 0xffffffff80004580 0xffffffff80004580
-                 0x000000000000137c 0x000000000000137c  R      0x1000
-  LOAD           0x0000000000005900 0xffffffff80006900 0xffffffff80006900
-                 0x00000000000015e0 0x0000000000008ac0  RW     0x1000
+                 0x0000000000003896 0x0000000000003896  R E    0x1000
+  LOAD           0x00000000000048a0 0xffffffff800048a0 0xffffffff800048a0
+                 0x00000000000013b4 0x00000000000013b4  R      0x1000
+  LOAD           0x0000000000005c60 0xffffffff80006c60 0xffffffff80006c60
+                 0x00000000000015e0 0x0000000000008c00  RW     0x1000
 
  Section to Segment mapping:
   Segment Sections...
@@ -38,15 +38,15 @@ Program Headers:
    02     .stivale2hdr .rodata .eh_frame 
    03     .data .bss 
 
-Symbol table '.symtab' contains 256 entries:
+Symbol table '.symtab' contains 259 entries:
    Num:    Value          Size Type    Bind   Vis      Ndx Name
      0: 0000000000000000     0 NOTYPE  LOCAL  DEFAULT  UND 
      1: ffffffff80000000     0 SECTION LOCAL  DEFAULT    1 
-     2: ffffffff80004580     0 SECTION LOCAL  DEFAULT    2 
-     3: ffffffff800045a0     0 SECTION LOCAL  DEFAULT    3 
-     4: ffffffff80004e20     0 SECTION LOCAL  DEFAULT    4 
-     5: ffffffff80006900     0 SECTION LOCAL  DEFAULT    5 
-     6: ffffffff80007ee0     0 SECTION LOCAL  DEFAULT    6 
+     2: ffffffff800048a0     0 SECTION LOCAL  DEFAULT    2 
+     3: ffffffff800048c0     0 SECTION LOCAL  DEFAULT    3 
+     4: ffffffff80005120     0 SECTION LOCAL  DEFAULT    4 
+     5: ffffffff80006c60     0 SECTION LOCAL  DEFAULT    5 
+     6: ffffffff80008240     0 SECTION LOCAL  DEFAULT    6 
      7: 0000000000000000     0 SECTION LOCAL  DEFAULT    7 
      8: 0000000000000000     0 SECTION LOCAL  DEFAULT    8 
      9: 0000000000000000     0 SECTION LOCAL  DEFAULT    9 
@@ -61,8 +61,8 @@ Symbol table '.symtab' contains 256 entries:
     18: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS src/scheduler/task.asm
     19: ffffffff80000030     0 NOTYPE  LOCAL  DEFAULT    1 switch_to_task.end
     20: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS src/memory/vmm.asm
-    21: ffffffff80000034     0 NOTYPE  LOCAL  DEFAULT    1 read_cr3.end
-    22: ffffffff80000038     0 NOTYPE  LOCAL  DEFAULT    1 write_cr3.end
+    21: ffffffff80000034     0 NOTYPE  LOCAL  DEFAULT    1 vmm_read_cr3.end
+    22: ffffffff80000038     0 NOTYPE  LOCAL  DEFAULT    1 vmm_write_cr3.end
     23: ffffffff8000003c     0 NOTYPE  LOCAL  DEFAULT    1 vmm_flush_tlb.end
     24: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS src/gdt/gdt.asm
     25: ffffffff80000054     0 NOTYPE  LOCAL  DEFAULT    1 gdt_load.trampoline
@@ -128,171 +128,174 @@ Symbol table '.symtab' contains 256 entries:
     85: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS io.c
     86: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS scheduler.c
     87: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS boot.c
-    88: ffffffff80004580    32 OBJECT  LOCAL  DEFAULT    2 stivale_hdr
-    89: ffffffff80006900    24 OBJECT  LOCAL  DEFAULT    5 framebuffer_hdr_tag
-    90: ffffffff80006920    32 OBJECT  LOCAL  DEFAULT    5 terminal_hdr_tag
+    88: ffffffff800048a0    32 OBJECT  LOCAL  DEFAULT    2 stivale_hdr
+    89: ffffffff80006c60    24 OBJECT  LOCAL  DEFAULT    5 framebuffer_hdr_tag
+    90: ffffffff80006c80    32 OBJECT  LOCAL  DEFAULT    5 terminal_hdr_tag
     91: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS vmm.c
     92: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS liballoc_helper.c
     93: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS liballoc.c
-    94: ffffffff800009d0   106 FUNC    LOCAL  DEFAULT    1 allocate_new_page
-    95: ffffffff8000e270     8 OBJECT  LOCAL  DEFAULT    6 l_allocated
-    96: ffffffff8000e260     8 OBJECT  LOCAL  DEFAULT    6 l_warningCount
-    97: ffffffff8000e280     8 OBJECT  LOCAL  DEFAULT    6 l_memRoot
-    98: ffffffff8000e278     8 OBJECT  LOCAL  DEFAULT    6 l_bestBet
-    99: ffffffff8000e268     8 OBJECT  LOCAL  DEFAULT    6 l_inuse
-   100: ffffffff8000e258     8 OBJECT  LOCAL  DEFAULT    6 l_errorCount
-   101: ffffffff8000e250     8 OBJECT  LOCAL  DEFAULT    6 l_possibleOverruns
+    94: ffffffff80000ad0   106 FUNC    LOCAL  DEFAULT    1 allocate_new_page
+    95: ffffffff8000e6d0     8 OBJECT  LOCAL  DEFAULT    6 l_allocated
+    96: ffffffff8000e6c0     8 OBJECT  LOCAL  DEFAULT    6 l_warningCount
+    97: ffffffff8000e6e0     8 OBJECT  LOCAL  DEFAULT    6 l_memRoot
+    98: ffffffff8000e6d8     8 OBJECT  LOCAL  DEFAULT    6 l_bestBet
+    99: ffffffff8000e6c8     8 OBJECT  LOCAL  DEFAULT    6 l_inuse
+   100: ffffffff8000e6b8     8 OBJECT  LOCAL  DEFAULT    6 l_errorCount
+   101: ffffffff8000e6b0     8 OBJECT  LOCAL  DEFAULT    6 l_possibleOverruns
    102: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS pmm.c
-   103: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS framebuffer.c
-   104: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS console.c
-   105: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS apic.c
-   106: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS serial.c
-   107: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS keyboard.c
-   108: ffffffff8000e288     8 OBJECT  LOCAL  DEFAULT    6 kbd_handler
-   109: ffffffff8000e290     1 OBJECT  LOCAL  DEFAULT    6 kbd_active
-   110: ffffffff80004740    58 OBJECT  LOCAL  DEFAULT    3 kbd_table
-   111: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS cpu.c
-   112: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS acpi.c
-   113: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS pic.c
-   114: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS printf.c
-   115: ffffffff80001e20    11 FUNC    LOCAL  DEFAULT    1 _out_buffer
-   116: ffffffff80001e30     2 FUNC    LOCAL  DEFAULT    1 _out_null
-   117: ffffffff80001e40    26 FUNC    LOCAL  DEFAULT    1 _out_fct
-   118: ffffffff80001e60  1125 FUNC    LOCAL  DEFAULT    1 _ntoa_format
-   119: ffffffff800022d0   181 FUNC    LOCAL  DEFAULT    1 _ntoa_long
-   120: ffffffff80002390   181 FUNC    LOCAL  DEFAULT    1 _ntoa_long_long
-   121: ffffffff80002450  2647 FUNC    LOCAL  DEFAULT    1 _vsnprintf
-   122: ffffffff80002eb0    25 FUNC    LOCAL  DEFAULT    1 _out_char
-   123: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS putchar.c
-   124: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS pagewalk.c
-   125: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS gdt.c
-   126: ffffffff8000e2a0    10 OBJECT  LOCAL  DEFAULT    6 gdtr
-   127: ffffffff8000e340    96 OBJECT  LOCAL  DEFAULT    6 gdt
-   128: ffffffff8000e2c0   104 OBJECT  LOCAL  DEFAULT    6 tss
-   129: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS kstring.c
-   130: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS kernel.c
-   131: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS idt.c
-   132: ffffffff8000e3c0  4096 OBJECT  LOCAL  DEFAULT    6 idt
-   133: ffffffff8000e3a8    10 OBJECT  LOCAL  DEFAULT    6 idtr
-   134: ffffffff80004d20   256 OBJECT  LOCAL  DEFAULT    3 _exception_messages
-   135: ffffffff80001a40    30 FUNC    GLOBAL DEFAULT    1 kbd_translate
-   136: ffffffff80009fa0  4096 OBJECT  GLOBAL DEFAULT    6 console_buffer
-   137: ffffffff80001640   295 FUNC    GLOBAL DEFAULT    1 putchar
-   138: ffffffff80003090     9 FUNC    GLOBAL DEFAULT    1 _putchar
-   139: ffffffff80000410     4 FUNC    GLOBAL DEFAULT    1 inb
-   140: ffffffff80000f50   369 FUNC    GLOBAL DEFAULT    1 krealloc
-   141: ffffffff8000b100     8 OBJECT  GLOBAL DEFAULT    6 kbd_buffer_index
-   142: ffffffff80000620    36 FUNC    GLOBAL DEFAULT    1 vmm_create_page_table
-   143: 00000000000014c0     0 NOTYPE  GLOBAL DEFAULT  ABS _binary_zapl16_psf_size
-   144: ffffffff80001870    77 FUNC    GLOBAL DEFAULT    1 console_exec
-   145: ffffffff800045a0     0 NOTYPE  GLOBAL DEFAULT    2 _start_of_rodata
-   146: ffffffff80000038     4 FUNC    GLOBAL DEFAULT    1 vmm_flush_tlb
-   147: ffffffff80001c40    73 FUNC    GLOBAL DEFAULT    1 pic_clear_mask
-   148: ffffffff80001a20     2 FUNC    GLOBAL DEFAULT    1 kbd_init
-   149: ffffffff80002fe0    39 FUNC    GLOBAL DEFAULT    1 vprintf_
-   150: ffffffff800019d0    26 FUNC    GLOBAL DEFAULT    1 serial_is_tx_empty
-   151: ffffffff80001b30     2 FUNC    GLOBAL DEFAULT    1 cpu_init
-   152: ffffffff80000450    50 FUNC    GLOBAL DEFAULT    1 stivale2_get_tag
-   153: ffffffff800015e0    84 FUNC    GLOBAL DEFAULT    1 console_input
-   154: ffffffff80000920     4 FUNC    GLOBAL DEFAULT    1 liballoc_unlock
-   155: ffffffff8000afa0    24 OBJECT  GLOBAL DEFAULT    6 con_output_buffer
+   103: ffffffff8000e700    40 OBJECT  LOCAL  DEFAULT    6 pmm_info
+   104: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS framebuffer.c
+   105: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS console.c
+   106: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS apic.c
+   107: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS serial.c
+   108: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS keyboard.c
+   109: ffffffff8000e728     8 OBJECT  LOCAL  DEFAULT    6 kbd_handler
+   110: ffffffff8000e730     1 OBJECT  LOCAL  DEFAULT    6 kbd_active
+   111: ffffffff80004a40    58 OBJECT  LOCAL  DEFAULT    3 kbd_table
+   112: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS cpu.c
+   113: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS acpi.c
+   114: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS pic.c
+   115: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS printf.c
+   116: ffffffff80002120    11 FUNC    LOCAL  DEFAULT    1 _out_buffer
+   117: ffffffff80002130     2 FUNC    LOCAL  DEFAULT    1 _out_null
+   118: ffffffff80002140    26 FUNC    LOCAL  DEFAULT    1 _out_fct
+   119: ffffffff80002160  1125 FUNC    LOCAL  DEFAULT    1 _ntoa_format
+   120: ffffffff800025d0   181 FUNC    LOCAL  DEFAULT    1 _ntoa_long
+   121: ffffffff80002690   181 FUNC    LOCAL  DEFAULT    1 _ntoa_long_long
+   122: ffffffff80002750  2647 FUNC    LOCAL  DEFAULT    1 _vsnprintf
+   123: ffffffff800031b0    25 FUNC    LOCAL  DEFAULT    1 _out_char
+   124: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS putchar.c
+   125: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS pagewalk.c
+   126: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS gdt.c
+   127: ffffffff8000e740    10 OBJECT  LOCAL  DEFAULT    6 gdtr
+   128: ffffffff8000e7e0    96 OBJECT  LOCAL  DEFAULT    6 gdt
+   129: ffffffff8000e760   104 OBJECT  LOCAL  DEFAULT    6 tss
+   130: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS kstring.c
+   131: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS kernel.c
+   132: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS idt.c
+   133: ffffffff8000e860  4096 OBJECT  LOCAL  DEFAULT    6 idt
+   134: ffffffff8000e848    10 OBJECT  LOCAL  DEFAULT    6 idtr
+   135: ffffffff80005020   256 OBJECT  LOCAL  DEFAULT    3 _exception_messages
+   136: ffffffff80001d40    30 FUNC    GLOBAL DEFAULT    1 kbd_translate
+   137: ffffffff8000a2e0  4096 OBJECT  GLOBAL DEFAULT    6 console_buffer
+   138: ffffffff80001760   736 FUNC    GLOBAL DEFAULT    1 putchar
+   139: ffffffff80003390     9 FUNC    GLOBAL DEFAULT    1 _putchar
+   140: ffffffff80000410     4 FUNC    GLOBAL DEFAULT    1 inb
+   141: ffffffff80001050   369 FUNC    GLOBAL DEFAULT    1 krealloc
+   142: ffffffff8000b560     8 OBJECT  GLOBAL DEFAULT    6 kbd_buffer_index
+   143: ffffffff80000620    36 FUNC    GLOBAL DEFAULT    1 vmm_create_page_table
+   144: 00000000000014c0     0 NOTYPE  GLOBAL DEFAULT  ABS _binary_zapl16_psf_size
+   145: ffffffff80001b40    77 FUNC    GLOBAL DEFAULT    1 console_exec
+   146: ffffffff800048c0     0 NOTYPE  GLOBAL DEFAULT    2 _start_of_rodata
+   147: ffffffff80000038     4 FUNC    GLOBAL DEFAULT    1 vmm_flush_tlb
+   148: ffffffff80001f40    73 FUNC    GLOBAL DEFAULT    1 pic_clear_mask
+   149: ffffffff80001d20     2 FUNC    GLOBAL DEFAULT    1 kbd_init
+   150: ffffffff800032e0    39 FUNC    GLOBAL DEFAULT    1 vprintf_
+   151: ffffffff80001ca0    26 FUNC    GLOBAL DEFAULT    1 serial_is_tx_empty
+   152: ffffffff80001e30     2 FUNC    GLOBAL DEFAULT    1 cpu_init
+   153: ffffffff80001700    84 FUNC    GLOBAL DEFAULT    1 console_input
+   154: ffffffff80000a20     4 FUNC    GLOBAL DEFAULT    1 liballoc_unlock
+   155: ffffffff8000b2e0    24 OBJECT  GLOBAL DEFAULT    6 con_output_buffer
    156: ffffffff80000040    42 FUNC    GLOBAL DEFAULT    1 gdt_load
-   157: ffffffff80009f40    40 OBJECT  GLOBAL DEFAULT    6 pmm_info
-   158: ffffffff800007c0   323 FUNC    GLOBAL DEFAULT    1 vmm_init
-   159: ffffffff80000da0   357 FUNC    GLOBAL DEFAULT    1 kfree
-   160: ffffffff80001b40   103 FUNC    GLOBAL DEFAULT    1 acpi_init
-   161: ffffffff80002f30    87 FUNC    GLOBAL DEFAULT    1 sprintf_
-   162: ffffffff800015d0     2 FUNC    GLOBAL DEFAULT    1 fb_drawline
-   163: ffffffff800014e0    19 FUNC    GLOBAL DEFAULT    1 pmm_get_free_memory
-   164: ffffffff8000b240  4096 OBJECT  GLOBAL DEFAULT    6 ist2
-   165: ffffffff800030a0     2 FUNC    GLOBAL DEFAULT    1 pagewalk
-   166: ffffffff80000030     4 FUNC    GLOBAL DEFAULT    1 read_cr3
-   167: ffffffff800030c0   301 FUNC    GLOBAL DEFAULT    1 gdt_init
-   168: ffffffff8000b108     1 OBJECT  GLOBAL DEFAULT    6 rshift_status
-   169: ffffffff80007ee0  4096 OBJECT  GLOBAL DEFAULT    6 threads
-   170: ffffffff80001560    47 FUNC    GLOBAL DEFAULT    1 fb_putpixel
-   171: ffffffff80000000     0 NOTYPE  GLOBAL DEFAULT    1 _start_of_text
-   172: ffffffff80008ee0  4096 OBJECT  GLOBAL DEFAULT    6 stack
-   173: ffffffff80000430     2 FUNC    GLOBAL DEFAULT    1 schedule
-   174: ffffffff80003010    24 FUNC    GLOBAL DEFAULT    1 vsnprintf_
-   175: ffffffff80000910     4 FUNC    GLOBAL DEFAULT    1 liballoc_lock
-   176: ffffffff80001770   251 FUNC    GLOBAL DEFAULT    1 console_init
-   177: ffffffff8000afc0    24 OBJECT  GLOBAL DEFAULT    6 con_input_buffer
-   178: ffffffff80001dc0    86 FUNC    GLOBAL DEFAULT    1 pit_init
-   179: ffffffff8000f3c0     0 NOTYPE  GLOBAL DEFAULT    6 _bss_end
-   180: ffffffff80003300   283 FUNC    GLOBAL DEFAULT    1 idt_init
-   181: ffffffff80003030    94 FUNC    GLOBAL DEFAULT    1 fctprintf
-   182: ffffffff80001500    12 FUNC    GLOBAL DEFAULT    1 pmm_get_total_memory
-   183: ffffffff8000e240     8 OBJECT  GLOBAL DEFAULT    6 kernel_cr3
-   184: ffffffff8000afe0    32 OBJECT  GLOBAL DEFAULT    6 console_info
-   185: ffffffff80009ee0    56 OBJECT  GLOBAL DEFAULT    6 boot_info
-   186: ffffffff8000000e    27 FUNC    GLOBAL DEFAULT    1 enable_sce
-   187: ffffffff800068fc     0 NOTYPE  GLOBAL DEFAULT    5 _start_of_data
-   188: ffffffff80000440     2 FUNC    GLOBAL DEFAULT    1 scheduler_init
-   189: ffffffff80006a20     0 NOTYPE  GLOBAL DEFAULT    5 _binary_zapl16_psf_start
-   190: ffffffff80007ee0     0 NOTYPE  GLOBAL DEFAULT    6 _bss
-   191: ffffffff80000490   388 FUNC    GLOBAL DEFAULT    1 _start
-   192: ffffffff80001330   123 FUNC    GLOBAL DEFAULT    1 pmm_allocpage
-   193: ffffffff80000940   133 FUNC    GLOBAL DEFAULT    1 liballoc_alloc
-   194: ffffffff80000034     4 FUNC    GLOBAL DEFAULT    1 write_cr3
-   195: ffffffff80001490    76 FUNC    GLOBAL DEFAULT    1 pmm_freepages
-   196: ffffffff80006960   192 OBJECT  GLOBAL DEFAULT    5 acpi_signatures
-   197: ffffffff80001590    57 FUNC    GLOBAL DEFAULT    1 fb_clearscreen
-   198: ffffffff80009f20     8 OBJECT  GLOBAL DEFAULT    6 kernel_heap_top
-   199: ffffffff80003210    63 FUNC    GLOBAL DEFAULT    1 memcmp
-   200: ffffffff8000b228     8 OBJECT  GLOBAL DEFAULT    6 ACPI_Info
-   201: ffffffff800019f0    43 FUNC    GLOBAL DEFAULT    1 serial_write
-   202: ffffffff80000400     6 FUNC    GLOBAL DEFAULT    1 outb
-   203: ffffffff8000b000   256 OBJECT  GLOBAL DEFAULT    6 cmd_buffer
-   204: ffffffff8000f3c0     0 NOTYPE  GLOBAL DEFAULT    6 _end_of_bss
-   205: ffffffff800031f0    31 FUNC    GLOBAL DEFAULT    1 memset
-   206: ffffffff800003d8     5 FUNC    GLOBAL DEFAULT    1 idt_load
-   207: ffffffff80004e20     0 NOTYPE  GLOBAL DEFAULT    3 _end_of_rodata
-   208: ffffffff8000e3a0     8 OBJECT  GLOBAL DEFAULT    6 pit_ticks
-   209: ffffffff800032b0    72 FUNC    GLOBAL DEFAULT    1 create_descriptor
-   210: ffffffff800018c0   180 FUNC    GLOBAL DEFAULT    1 serial_init
-   211: ffffffff80007ee0     0 NOTYPE  GLOBAL DEFAULT    5 _end_of_data
-   212: ffffffff8000c240  4096 OBJECT  GLOBAL DEFAULT    6 ist0
-   213: ffffffff80003420   334 FUNC    GLOBAL DEFAULT    1 interrupt_handler
-   214: ffffffff80007ee0     0 NOTYPE  GLOBAL DEFAULT    5 _binary_zapl16_psf_end
-   215: ffffffff80003250    87 FUNC    GLOBAL DEFAULT    1 kernel
-   216: ffffffff800013e0   175 FUNC    GLOBAL DEFAULT    1 pmm_allocpages
-   217: ffffffff800010d0   602 FUNC    GLOBAL DEFAULT    1 pmm_init
-   218: ffffffff80000000     0 NOTYPE  GLOBAL DEFAULT    1 _start_of_kernel
-   219: ffffffff80001c90    38 FUNC    GLOBAL DEFAULT    1 pic_disable
-   220: ffffffff80002f90    78 FUNC    GLOBAL DEFAULT    1 snprintf_
-   221: ffffffff80000420     3 FUNC    GLOBAL DEFAULT    1 io_wait
-   222: ffffffff8000e248     8 OBJECT  GLOBAL DEFAULT    6 RootPageDirectory
-   223: ffffffff80000930     2 FUNC    GLOBAL DEFAULT    1 liballoc_free
-   224: ffffffff8000b230     8 OBJECT  GLOBAL DEFAULT    6 ticks
-   225: ffffffff80001cc0   253 FUNC    GLOBAL DEFAULT    1 pic_remap
-   226: ffffffff80001980    23 FUNC    GLOBAL DEFAULT    1 serial_received
-   227: ffffffff80006940     8 OBJECT  GLOBAL DEFAULT    5 magic
-   228: ffffffff80001510    72 FUNC    GLOBAL DEFAULT    1 fb_init
-   229: ffffffff8000b120   256 OBJECT  GLOBAL DEFAULT    6 kbd_buffer
-   230: ffffffff80009f18     8 OBJECT  GLOBAL DEFAULT    6 term_write
-   231: ffffffff80002ed0    94 FUNC    GLOBAL DEFAULT    1 printf_
-   232: ffffffff800019a0    40 FUNC    GLOBAL DEFAULT    1 serial_read
-   233: ffffffff800003f0     2 FUNC    GLOBAL DEFAULT    1 user_enter
-   234: ffffffff80000248   400 OBJECT  GLOBAL DEFAULT    1 isr_stub_table
-   235: ffffffff80000710   164 FUNC    GLOBAL DEFAULT    1 vmm_pagewalk
-   236: ffffffff800003e0     2 FUNC    GLOBAL DEFAULT    1 user_init
-   237: ffffffff8000356e     0 NOTYPE  GLOBAL DEFAULT    1 _end_of_text
-   238: ffffffff800013b0    43 FUNC    GLOBAL DEFAULT    1 pmm_freepage
-   239: ffffffff80000030     0 FUNC    GLOBAL DEFAULT    1 switch_to_task
-   240: ffffffff80000a40   860 FUNC    GLOBAL DEFAULT    1 kmalloc
-   241: ffffffff80001bb0    62 FUNC    GLOBAL DEFAULT    1 pic_EOI
-   242: ffffffff8000d240  4096 OBJECT  GLOBAL DEFAULT    6 ist1
-   243: ffffffff80001bf0    73 FUNC    GLOBAL DEFAULT    1 pic_set_mask
-   244: ffffffff8000f3c0     0 NOTYPE  GLOBAL DEFAULT    6 _end_of_kernel
-   245: ffffffff80009f70    24 OBJECT  GLOBAL DEFAULT    6 fb_info
-   246: ffffffff80000000    14 FUNC    GLOBAL DEFAULT    1 to_usermode
-   247: ffffffff80007ee0     0 NOTYPE  GLOBAL DEFAULT    5 _start_of_bss
-   248: ffffffff80000070     4 FUNC    GLOBAL DEFAULT    1 read_cr2
-   249: ffffffff80000650   191 FUNC    GLOBAL DEFAULT    1 vmm_map_page
-   250: ffffffff80001a30    15 FUNC    GLOBAL DEFAULT    1 kbd_set_target
-   251: ffffffff800030b0     2 FUNC    GLOBAL DEFAULT    1 print_gdt
-   252: ffffffff80001a60   201 FUNC    GLOBAL DEFAULT    1 kbd_handle
-   253: ffffffff800003dd     0 FUNC    GLOBAL DEFAULT    1 int_test
-   254: ffffffff80000f10    49 FUNC    GLOBAL DEFAULT    1 kcalloc
-   255: ffffffff8000b220     1 OBJECT  GLOBAL DEFAULT    6 lshift_status
+   157: ffffffff80000850   447 FUNC    GLOBAL DEFAULT    1 vmm_init
+   158: ffffffff80000ea0   357 FUNC    GLOBAL DEFAULT    1 kfree
+   159: ffffffff80001cf0    42 FUNC    GLOBAL DEFAULT    1 serial_write_str
+   160: ffffffff80001e40   103 FUNC    GLOBAL DEFAULT    1 acpi_init
+   161: ffffffff80003230    87 FUNC    GLOBAL DEFAULT    1 sprintf_
+   162: ffffffff800016f0     2 FUNC    GLOBAL DEFAULT    1 fb_drawline
+   163: ffffffff80001600    19 FUNC    GLOBAL DEFAULT    1 pmm_get_free_memory
+   164: ffffffff8000b6a0  4096 OBJECT  GLOBAL DEFAULT    6 ist2
+   165: ffffffff800033a0     2 FUNC    GLOBAL DEFAULT    1 pagewalk
+   166: ffffffff800033c0   301 FUNC    GLOBAL DEFAULT    1 gdt_init
+   167: ffffffff8000b568     1 OBJECT  GLOBAL DEFAULT    6 rshift_status
+   168: ffffffff80008240  4096 OBJECT  GLOBAL DEFAULT    6 threads
+   169: ffffffff80001680    47 FUNC    GLOBAL DEFAULT    1 fb_putpixel
+   170: ffffffff80000000     0 NOTYPE  GLOBAL DEFAULT    1 _start_of_text
+   171: ffffffff80009240  4096 OBJECT  GLOBAL DEFAULT    6 stack
+   172: ffffffff80000430     2 FUNC    GLOBAL DEFAULT    1 schedule
+   173: ffffffff80003310    24 FUNC    GLOBAL DEFAULT    1 vsnprintf_
+   174: ffffffff8000b460   256 OBJECT  GLOBAL DEFAULT    6 serial_buffer
+   175: ffffffff8000a2b0    24 OBJECT  GLOBAL DEFAULT    6 pmm_vmm_info
+   176: ffffffff80000a10     4 FUNC    GLOBAL DEFAULT    1 liballoc_lock
+   177: ffffffff80001a40   251 FUNC    GLOBAL DEFAULT    1 console_init
+   178: ffffffff8000b300    24 OBJECT  GLOBAL DEFAULT    6 con_input_buffer
+   179: ffffffff800020c0    86 FUNC    GLOBAL DEFAULT    1 pit_init
+   180: ffffffff8000f860     0 NOTYPE  GLOBAL DEFAULT    6 _bss_end
+   181: ffffffff80003620   283 FUNC    GLOBAL DEFAULT    1 idt_init
+   182: ffffffff80003330    94 FUNC    GLOBAL DEFAULT    1 fctprintf
+   183: ffffffff80001620    12 FUNC    GLOBAL DEFAULT    1 pmm_get_total_memory
+   184: ffffffff8000e6a0     8 OBJECT  GLOBAL DEFAULT    6 kernel_cr3
+   185: ffffffff8000b320    40 OBJECT  GLOBAL DEFAULT    6 console_info
+   186: ffffffff8000a240    64 OBJECT  GLOBAL DEFAULT    6 boot_info
+   187: ffffffff8000000e    27 FUNC    GLOBAL DEFAULT    1 enable_sce
+   188: ffffffff80006c54     0 NOTYPE  GLOBAL DEFAULT    5 _start_of_data
+   189: ffffffff80000440     2 FUNC    GLOBAL DEFAULT    1 scheduler_init
+   190: ffffffff80006d80     0 NOTYPE  GLOBAL DEFAULT    5 _binary_zapl16_psf_start
+   191: ffffffff80008240     0 NOTYPE  GLOBAL DEFAULT    6 _bss
+   192: ffffffff80000450   464 FUNC    GLOBAL DEFAULT    1 _start
+   193: ffffffff80001440   123 FUNC    GLOBAL DEFAULT    1 pmm_allocpage
+   194: ffffffff80000030     4 FUNC    GLOBAL DEFAULT    1 vmm_read_cr3
+   195: ffffffff80000a40   133 FUNC    GLOBAL DEFAULT    1 liballoc_alloc
+   196: ffffffff800015a0    89 FUNC    GLOBAL DEFAULT    1 pmm_freepages
+   197: ffffffff80006cc0   192 OBJECT  GLOBAL DEFAULT    5 acpi_signatures
+   198: ffffffff800016b0    57 FUNC    GLOBAL DEFAULT    1 fb_clearscreen
+   199: ffffffff8000a2a8     8 OBJECT  GLOBAL DEFAULT    6 kernel_heap_top
+   200: ffffffff80003510    63 FUNC    GLOBAL DEFAULT    1 memcmp
+   201: ffffffff8000b688     8 OBJECT  GLOBAL DEFAULT    6 ACPI_Info
+   202: ffffffff80001cc0    43 FUNC    GLOBAL DEFAULT    1 serial_write
+   203: ffffffff80000400     6 FUNC    GLOBAL DEFAULT    1 outb
+   204: ffffffff8000b360   256 OBJECT  GLOBAL DEFAULT    6 cmd_buffer
+   205: ffffffff8000f860     0 NOTYPE  GLOBAL DEFAULT    6 _end_of_bss
+   206: ffffffff800034f0    31 FUNC    GLOBAL DEFAULT    1 memset
+   207: ffffffff800003d8     5 FUNC    GLOBAL DEFAULT    1 idt_load
+   208: ffffffff80005120     0 NOTYPE  GLOBAL DEFAULT    3 _end_of_rodata
+   209: ffffffff8000e840     8 OBJECT  GLOBAL DEFAULT    6 pit_ticks
+   210: ffffffff800035d0    72 FUNC    GLOBAL DEFAULT    1 create_descriptor
+   211: ffffffff80001b90   180 FUNC    GLOBAL DEFAULT    1 serial_init
+   212: ffffffff80008240     0 NOTYPE  GLOBAL DEFAULT    5 _end_of_data
+   213: ffffffff8000c6a0  4096 OBJECT  GLOBAL DEFAULT    6 ist0
+   214: ffffffff80003740   342 FUNC    GLOBAL DEFAULT    1 interrupt_handler
+   215: ffffffff80008240     0 NOTYPE  GLOBAL DEFAULT    5 _binary_zapl16_psf_end
+   216: ffffffff80003550   119 FUNC    GLOBAL DEFAULT    1 kernel
+   217: ffffffff800014f0   175 FUNC    GLOBAL DEFAULT    1 pmm_allocpages
+   218: ffffffff800011d0   611 FUNC    GLOBAL DEFAULT    1 pmm_init
+   219: ffffffff80000000     0 NOTYPE  GLOBAL DEFAULT    1 _start_of_kernel
+   220: ffffffff80001f90    38 FUNC    GLOBAL DEFAULT    1 pic_disable
+   221: ffffffff80003290    78 FUNC    GLOBAL DEFAULT    1 snprintf_
+   222: ffffffff80000420     3 FUNC    GLOBAL DEFAULT    1 io_wait
+   223: ffffffff8000e6a8     8 OBJECT  GLOBAL DEFAULT    6 RootPageDirectory
+   224: ffffffff80000a30     2 FUNC    GLOBAL DEFAULT    1 liballoc_free
+   225: ffffffff8000b690     8 OBJECT  GLOBAL DEFAULT    6 ticks
+   226: ffffffff80001fc0   253 FUNC    GLOBAL DEFAULT    1 pic_remap
+   227: ffffffff80001c50    23 FUNC    GLOBAL DEFAULT    1 serial_received
+   228: ffffffff80006ca0     8 OBJECT  GLOBAL DEFAULT    5 magic
+   229: ffffffff80001630    72 FUNC    GLOBAL DEFAULT    1 fb_init
+   230: ffffffff8000b580   256 OBJECT  GLOBAL DEFAULT    6 kbd_buffer
+   231: ffffffff8000a280     8 OBJECT  GLOBAL DEFAULT    6 term_write
+   232: ffffffff800031d0    94 FUNC    GLOBAL DEFAULT    1 printf_
+   233: ffffffff80001c70    40 FUNC    GLOBAL DEFAULT    1 serial_read
+   234: ffffffff800003f0     2 FUNC    GLOBAL DEFAULT    1 user_enter
+   235: ffffffff80000248   400 OBJECT  GLOBAL DEFAULT    1 isr_stub_table
+   236: ffffffff800007a0   164 FUNC    GLOBAL DEFAULT    1 vmm_pagewalk
+   237: ffffffff800003e0     2 FUNC    GLOBAL DEFAULT    1 user_init
+   238: ffffffff80003896     0 NOTYPE  GLOBAL DEFAULT    1 _end_of_text
+   239: ffffffff800014c0    43 FUNC    GLOBAL DEFAULT    1 pmm_freepage
+   240: ffffffff80000030     0 FUNC    GLOBAL DEFAULT    1 switch_to_task
+   241: ffffffff80000b40   860 FUNC    GLOBAL DEFAULT    1 kmalloc
+   242: ffffffff80001eb0    62 FUNC    GLOBAL DEFAULT    1 pic_EOI
+   243: ffffffff8000d6a0  4096 OBJECT  GLOBAL DEFAULT    6 ist1
+   244: ffffffff80000650   144 FUNC    GLOBAL DEFAULT    1 vmm_map_2Mpage
+   245: ffffffff80001ef0    73 FUNC    GLOBAL DEFAULT    1 pic_set_mask
+   246: ffffffff8000f860     0 NOTYPE  GLOBAL DEFAULT    6 _end_of_kernel
+   247: ffffffff8000a290    24 OBJECT  GLOBAL DEFAULT    6 fb_info
+   248: ffffffff80000000    14 FUNC    GLOBAL DEFAULT    1 to_usermode
+   249: ffffffff80008240     0 NOTYPE  GLOBAL DEFAULT    5 _start_of_bss
+   250: ffffffff80000070     4 FUNC    GLOBAL DEFAULT    1 read_cr2
+   251: ffffffff800006e0   191 FUNC    GLOBAL DEFAULT    1 vmm_map_page
+   252: ffffffff80001d30    15 FUNC    GLOBAL DEFAULT    1 kbd_set_target
+   253: ffffffff800033b0     2 FUNC    GLOBAL DEFAULT    1 print_gdt
+   254: ffffffff80001d60   201 FUNC    GLOBAL DEFAULT    1 kbd_handle
+   255: ffffffff800003dd     0 FUNC    GLOBAL DEFAULT    1 int_test
+   256: ffffffff80001010    49 FUNC    GLOBAL DEFAULT    1 kcalloc
+   257: ffffffff8000b680     1 OBJECT  GLOBAL DEFAULT    6 lshift_status
+   258: ffffffff80000034     4 FUNC    GLOBAL DEFAULT    1 vmm_write_cr3

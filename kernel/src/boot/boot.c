@@ -51,7 +51,7 @@ static struct stivale2_header stivale_hdr = {
 
 
 
-void *stivale2_get_tag(struct stivale2_struct *stivale2_struct, uint64_t id) {
+static void *stivale2_get_tag(struct stivale2_struct *stivale2_struct, uint64_t id) {
     struct stivale2_tag *current_tag = (void *)stivale2_struct->tags;
     for (;;) {
         if (current_tag == NULL) {
@@ -120,6 +120,8 @@ void _start(struct stivale2_struct* stivale2_struct)
     //printf("--------\n");
 
     boot_info.tag_rsdp = stivale2_get_tag(stivale2_struct, STIVALE2_STRUCT_TAG_RSDP_ID);
+    
+    boot_info.tag_hhdm = stivale2_get_tag(stivale2_struct, STIVALE2_STRUCT_TAG_HHDM_ID);
 
     kernel();
 

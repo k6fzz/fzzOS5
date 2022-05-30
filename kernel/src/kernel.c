@@ -20,20 +20,22 @@ void kernel()
 {
 
     //printf("Kernel Now\n");
-    
+    serial_init(0x3F8);     //COM1
     gdt_init();
     idt_init();
     fb_init();
     console_init();
 
+    serial_write(0x3F8, 'm');
+
     pmm_init();
     vmm_init();
 
-    serial_init(0x3F8);     //COM1
-
-    serial_write(0x3F8, 'h');
     
 
+    serial_write(0x3F8, 'k');
+    
+    serial_write_str(SERIAL_PORT1, "Testing!");
 
     //acpi_init();
 

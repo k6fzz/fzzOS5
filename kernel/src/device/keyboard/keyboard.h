@@ -13,4 +13,6 @@ typedef struct
 
 void kbd_init();
 void kbd_handle();
+
+//Handler prototype: void handler(KEY_INFO_t keyinfo);
 void kbd_set_target(void* handler);

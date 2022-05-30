@@ -14,6 +14,7 @@ void fb_init()
     fb_info.bpp = boot_info.tag_framebuffer->framebuffer_bpp;
     fb_info.max_pixels = fb_info.height * fb_info.width;
 
+    //printf("FB Base: %p", fb_info.base);
     //printf("FB Height: %d  FB Width: %d\n", fb_info.height, fb_info.width);
     //printf("FB BPP: %d   FB Pitch: %d\n", fb_info.bpp, fb_info.pitch);
 

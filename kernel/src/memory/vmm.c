@@ -5,6 +5,11 @@
 #include "../util/printf.h"
 #include "../boot/boot.h"
 #include "../boot/stivale2.h"
+#include "../device/framebuffer/framebuffer.h"
+#include "../device/serial/serial.h"
+
+#define VMM_START_OF_FB     0xC0000000
+#define VMM_SIZE_OF_FB      0x7E9000
 
 extern uint8_t* _start_of_kernel, 
     _start_of_text,
@@ -17,11 +22,11 @@ extern uint8_t* _start_of_kernel,
     _end_of_bss,
     _end_of_kernel;
 
-extern struct pmm_info pmm_info;
+//extern struct pmm_info pmm_info;
 
 extern void vmm_flush_tlb(void* vaddr);
-extern uint64_t read_cr3();
-extern void write_cr3(uint64_t value);
+extern uint64_t vmm_read_cr3();
+extern void vmm_write_cr3(uint64_t value);
 struct PageTable* RootPageDirectory = {0};
 
 struct PageTable* kernel_cr3 = {0};
@@ -49,9 +54,33 @@ static inline struct PageTable* vmm_get_pagemap(struct PageTable* pagemap, uint6
     {
         uint64_t newentry = (uint64_t)vmm_create_page_table();
         pagemap->entry[index] = newentry | flags;
-        //printf("create new pagemap %p\n", pagemap->entry[index]);
+        //printf("pagemap %p  ", pagemap->entry[index]);
         return (struct PageTable*)(pagemap->entry[index] & (~0x1ff));
     }
+}
+
+void vmm_map_2Mpage(struct PageTable* pagetable, uint64_t virtual, uint64_t physical, uint64_t flags)
+{
+    uint64_t vaddr = virtual;
+    uint64_t index2, index3, index4;
+    vaddr >>= 12;
+    //index1 = vaddr & 0x1ff;
+    vaddr >>= 9;
+    index2 = vaddr & 0x1ff;
+    vaddr >>= 9;
+    index3 = vaddr & 0x1ff;
+    vaddr >>= 9;
+    index4 = vaddr & 0x1ff;
+
+    struct PageTable* PML4;
+    struct PageTable* PML3;
+    struct PageTable* PML2; 
+
+    PML4 = pagetable;
+    PML3 = vmm_get_pagemap(PML4, index4, flags);
+    PML2 = vmm_get_pagemap(PML3, index3, flags);
+
+    PML2->entry[index2] = physical | flags | PTE_PAGESIZE;
 }
 
 void vmm_map_page(struct PageTable* pagetable, uint64_t virtual, uint64_t physical, uint64_t flags)
@@ -117,7 +146,7 @@ uint64_t vmm_pagewalk(uint64_t vaddr, uint64_t* cr3)
 
 void vmm_init()
 {
-    kernel_cr3 = (struct PageTable*)read_cr3();
+    kernel_cr3 = (struct PageTable*)vmm_read_cr3();
     printf("CR3: %p\n", (uint64_t)kernel_cr3);
  
     uint64_t kernel_phys = boot_info.tag_kernel_base_address->physical_base_address;
@@ -141,24 +170,31 @@ void vmm_init()
     printf("Root = %p\n", RootPageDirectory);
 
     //Map the Kernel
-    //for(uint64_t i = 0; i < kernel_size; i += 4096)
-    //{
-    //    vmm_map_page(RootPageDirectory, kernel_virt, kernel_phys, PTE_PRESENT | PTE_READWRITE);
-    //}
+    //TODO - Make the pages sensitive to RO/RW
+    for(uint64_t i = 0; i < kernel_size; i += 4096)
+    {
+        vmm_map_page(RootPageDirectory, kernel_virt + i, kernel_phys + i, PTE_PRESENT | PTE_READWRITE);
+    }
 
-    //Map Physical Me mory
-    //for(uint64_t i = 0; i < pmm_info.totalmem; i += 4096)
-    //{
-    //    vmm_map_page(RootPageDirectory, 0xFFFF00000000 + i, i, PTE_PRESENT | PTE_READWRITE);
-    //}
+    //Map Physical Memory
+    printf("HHDM: %p\n", boot_info.tag_hhdm->addr);
+    for(uint64_t i = 1; i < 261; i++)
+    {   
+        vmm_map_2Mpage(RootPageDirectory, boot_info.tag_hhdm->addr + (0x1000 * i), (0x1000 * i), PTE_PRESENT | PTE_READWRITE);
+    }
 
-    vmm_map_page(kernel_cr3, 0xFFFFFFFFC0001000, (uint64_t)pmm_allocpage(), PTE_PRESENT | PTE_READWRITE);
+    printf("New CR3: %p -- & %p \n", (uint64_t)RootPageDirectory, &RootPageDirectory);
 
-    uint64_t* value = (uint64_t*)0xFFFFFFFFC0001000;
+    //Load new CR3
+    //vmm_write_cr3((uint64_t)RootPageDirectory);
 
-    *value = 0xdeadbeef;
+    serial_write(0x3F8, 'v');
 
-    printf("Magic: %p\n", *value);
+
+    //vmm_map_page(kernel_cr3, 0xFFFFFFFFC0001000, (uint64_t)pmm_allocpage(), PTE_PRESENT | PTE_READWRITE);
+    //uint64_t* value = (uint64_t*)0xFFFFFFFFC0001000;
+    //*value = 0xdeadbeef;
+    //printf("Magic: %p\n", *value);
 
     //vmm_pagewalk((uint64_t)&_start_of_kernel, (uint64_t*)RootPageDirectory);
     

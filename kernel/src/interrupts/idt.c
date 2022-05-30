@@ -128,7 +128,7 @@ uint64_t interrupt_handler(uint64_t rsp)
         {
             //kernel panic
             uint64_t cr2 = read_cr2();
-            serial_write(0x3F8, 'e');
+            serial_write(0x3F8, frame->int_no + 65);
             printf("\nCPU Exception! INT %d   ERR %x  CR2 %p\n", frame->int_no, frame->err_no, cr2);
             printf(_exception_messages[frame->int_no]);
             printf("\n");

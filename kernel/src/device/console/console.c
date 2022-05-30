@@ -1,5 +1,6 @@
 #include "console.h"
 #include "../framebuffer/framebuffer.h"
+#include "../../libk/kstring.h"
 
 // Console Font
 #define PSF1_MAGIC0 0x36
@@ -37,6 +38,7 @@ struct console_info
     uint16_t cursor_x;
     uint16_t cursor_y;
     struct PSF1_FONT* font;
+    uint64_t scroll_blank;
 }console_info;
 
 static inline void console_draw_hline(uint64_t y, enum fb_color color)
@@ -52,8 +54,24 @@ static inline void console_draw_hline(uint64_t y, enum fb_color color)
 static inline void console_scroll()
 {
     console_info.cursor_x = 0;
+    //console_info.cursor_y = PSF1_FONT_HEIGHT * 
 
-    //TODO: Implement Scrolling
+    uint64_t start_index, finish_index, end_index;
+    uint32_t* base = (uint32_t*)fb_info.base;
+
+    start_index = fb_info.width * 16 * 4;
+    finish_index = (fb_info.height * fb_info.width) - start_index;
+    end_index = fb_info.height * fb_info.width - 1;
+
+    for(uint64_t i = 0; i < finish_index; i++)
+    {
+        base[i] = base[start_index + i];
+    }
+
+    for(uint64_t i = finish_index + 1; i < end_index; i++)
+    {
+        base[i] = console_info.background_color;
+    }
 }
 
 static inline void console_next()
@@ -101,18 +119,23 @@ void putchar(uint8_t c)
             console_next();
             return;
         case ASCII_HT:
-            if(console_info.cursor_x += (PSF1_FONT_HEIGHT * 4) < fb_info.width)
+            if((console_info.cursor_x += (PSF1_FONT_WIDTH * 4)) < fb_info.width)
             {
-                console_info.cursor_x += (8*4);
+                console_info.cursor_x += (PSF1_FONT_WIDTH * 4);
                 return;
             }
             else
             {
                 console_next();
-                console_info.cursor_x += (8*4);
+                console_info.cursor_x += (PSF1_FONT_WIDTH * 4);
                 return;
             }
     }
+
+    //if((console_info.cursor_x += PSF1_FONT_WIDTH) > fb_info.width)
+    //{
+    //    console_next();
+    //}
 
     console_drawchar(c, console_info.cursor_x, console_info.cursor_y, console_info.foreground_color, console_info.background_color);
     console_info.cursor_x += 8;

@@ -18,6 +18,7 @@ struct bootinfo_t
     struct stivale2_struct_tag_modules* tag_modules;
     struct stivale2_struct_tag_rsdp* tag_rsdp;
     struct stivale2_struct_kernel_file_v2* tag_kernel_file;
+    struct stivale2_struct_tag_hhdm* tag_hhdm;
 };
 
 extern struct bootinfo_t boot_info;

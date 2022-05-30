@@ -1,6 +1,7 @@
 #include "serial.h"
 #include "../../io/io.h"
 
+char serial_buffer[256];
 
 uint64_t serial_init(uint16_t port)
 {
@@ -42,4 +43,14 @@ void serial_write(uint16_t port, uint8_t data)
 {
     while(serial_is_tx_empty(port) == 0);
     outb(port, data);
+}
+
+void serial_write_str(uint16_t port, uint8_t* data)
+{
+    uint8_t i = 0;
+    while(!data)
+    {
+        serial_write(port, data[i]);
+        i++;
+    }
 }

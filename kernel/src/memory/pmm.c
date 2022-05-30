@@ -5,9 +5,16 @@
 #include "../boot/stivale2.h"
 //#include "bitmap.h"
 
+static struct pmm_info
+{
+    uint64_t totalmem;          //Size of memory in bytes
+    uint64_t usedpages;         //Number of used pages
+    uint64_t totalpages;        //Number of total pages
+    uint8_t* bitmap;            //Address of Bitmap
+    uint64_t bitmap_size;       //Size of Bitmap, in bytes 
+}pmm_info;
 
-
-struct pmm_info pmm_info;
+struct pmm_to_vmm_info pmm_vmm_info;
 
 /*static const char* pmm_mmap_type[10] = 
 {
@@ -98,13 +105,17 @@ void pmm_init()
     {
         current_entry = &boot_info.tag_memmap->memmap[i];
         //type = pmm_get_mmap_type(current_entry->type);
-        printf("Addr: 0x%x  Size: %d  Type: %x\n", current_entry->base, current_entry->length, current_entry->type);
+        //printf("Addr: 0x%x  Size: %d  Type: %x\n", current_entry->base, current_entry->length, current_entry->type);
 
         //Calculate total memory
         pmm_info.totalmem = pmm_info.totalmem + current_entry->length;
         
-        //Capture Kernel Physical Location
-
+        //Capture mmap framebuffer info
+        if(current_entry->type == 0x1002)
+        {
+            pmm_vmm_info.fb_base = current_entry->base;
+            pmm_vmm_info.fb_size = current_entry->length;
+        }
         
         
         //If memory isn't usable, continue
@@ -134,7 +145,7 @@ void pmm_init()
     
     pmm_info.bitmap = (uint8_t*)phys_to_hh_data(mmap_largest_segment_base); 
 
-    printf("Total Memory (KB): %d\n", (pmm_info.totalmem/1024));
+    printf("Total Memory: %d\n", (pmm_info.totalmem));
     printf("Total Pages: %d   Used Pages: %d\n", pmm_info.totalpages, pmm_info.usedpages);
     printf("Bitmap Addr: %p  Bitmap Size (bytes): %d\n", pmm_info.bitmap, pmm_info.bitmap_size);
 

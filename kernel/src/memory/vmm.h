@@ -13,6 +13,7 @@
 #define PTE_ACCESSED            32
 #define PTE_DIRTY               64
 #define PTE_PAT                 128
+#define PTE_PAGESIZE            128
 #define PTE_GLOBAL              256
 
 struct PageTable
