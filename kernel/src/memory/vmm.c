@@ -144,6 +144,49 @@ uint64_t vmm_pagewalk(uint64_t vaddr, uint64_t* cr3)
     return pageaddr;
 }
 
+void vmm_PMLwalk(struct PageTable* pagetable)
+{
+    struct PageTable* PML4 = pagetable;
+    struct PageTable* PML3 = NULL;
+    struct PageTable* PML2 = NULL;
+    struct PageTable* PML1 = NULL;
+
+    serial_printf(SERIAL_PORT1, "Begin Pagewalk\r\nPML 4 %p\r\n", (uint64_t)PML4);
+    for(uint64_t i = 0; i < 512; i++)
+    {
+        if(pagetable->entry[i] & 0x01)
+            {
+                serial_printf(SERIAL_PORT1, "4,%p,%d,%p\r\n",pagetable, i, pagetable->entry[i]);
+                PML3 = (struct PageTable*)(pagetable->entry[i] & ~(0x1FF));
+                for(uint64_t j = 0; j < 512; j++)
+                {
+                    if(PML3->entry[j] & 0x01)
+                    {
+                        serial_printf(SERIAL_PORT1, "3,%p,%d,%p\r\n",PML3, j, PML3->entry[j]);
+                        PML2 = (struct PageTable*)(PML3->entry[j] & ~(0x1FF));
+                        for(uint64_t k = 0; k < 512; k++)
+                        {
+                            if(PML2->entry[k] & 0x01)
+                            {
+                                serial_printf(SERIAL_PORT1, "2,%p,%d,%p\r\n",PML2, k, PML2->entry[k]);
+                                PML1 = (struct PageTable*)(PML3->entry[k] & ~(0x1FF));
+                                for(uint64_t l = 0; l < 512; l++)
+                                {
+                                    if(PML1->entry[l] & 0x01)
+                                    {
+                                        serial_printf(SERIAL_PORT1, "1,%p,%d,%p\r\n", PML1, l, PML1->entry[l]);
+                                    }
+                                }//PML1
+                            }
+                        }//PML2
+                    }
+                }//PML3
+            }
+    }//PML4
+
+    serial_printf(SERIAL_PORT1, "End Pagewalk\r\n");
+}
+
 void vmm_init()
 {
     kernel_cr3 = (struct PageTable*)vmm_read_cr3();
@@ -188,8 +231,9 @@ void vmm_init()
     //Load new CR3
     //vmm_write_cr3((uint64_t)RootPageDirectory);
 
-    serial_write(0x3F8, 'v');
+    //serial_write(0x3F8, 'v');
 
+    vmm_PMLwalk(kernel_cr3);
 
     //vmm_map_page(kernel_cr3, 0xFFFFFFFFC0001000, (uint64_t)pmm_allocpage(), PTE_PRESENT | PTE_READWRITE);
     //uint64_t* value = (uint64_t*)0xFFFFFFFFC0001000;
@@ -197,6 +241,11 @@ void vmm_init()
     //printf("Magic: %p\n", *value);
 
     //vmm_pagewalk((uint64_t)&_start_of_kernel, (uint64_t*)RootPageDirectory);
+
+
+    //cycle through page entries
+
+
     
 }
 

@@ -1,3 +1,6 @@
+#include <stdarg.h>
+#include <stdint.h>
+
 #include "printf.h"
 #include "../boot/boot.h"
 #include "../device/serial/serial.h"
@@ -11,4 +14,16 @@ void _putchar(char character)
     //term_write(&character, 1);
     
     //serial_write(0x3F8, character);
+}
+
+void serial_printf(uint16_t port, const char* format, ...)
+{
+    char buffer[64];
+
+    va_list argptr;
+    va_start(argptr, format);
+    vsnprintf(buffer, 64, format, argptr);
+    va_end(argptr);
+
+    serial_write_str(port, buffer);
 }

@@ -26,17 +26,18 @@ void kernel()
     fb_init();
     console_init();
 
-    serial_write(0x3F8, 'm');
+    //serial_write(0x3F8, 'm');
 
     pmm_init();
     vmm_init();
 
     
 
-    serial_write(0x3F8, 'k');
+    //serial_write(0x3F8, 'k');
     
-    serial_write_str(SERIAL_PORT1, "Testing!\n\rMore Testing!");
+    //serial_write_str(SERIAL_PORT1, "Testing!\n\rMore Testing!");
 
+    //serial_printf(SERIAL_PORT1, "Hello World! %p\r\n", boot_info.tag_hhdm->addr);
     //acpi_init();
 
     //fb_clearscreen(FB_COLOR_BLUE);

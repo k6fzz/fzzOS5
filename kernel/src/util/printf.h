@@ -52,6 +52,15 @@ extern "C" {
  */
 void _putchar(char character);
 
+/**
+ * @brief Output a zero-terminated string onto a serial port.
+ * 
+ * @param port Serial port to output to
+ * @param format 
+ * @param ... 
+ */
+void serial_printf(uint16_t port, const char* format, ...);
+
 
 /**
  * Tiny printf implementation
