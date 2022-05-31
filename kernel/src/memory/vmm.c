@@ -53,6 +53,7 @@ static inline struct PageTable* vmm_get_pagemap(struct PageTable* pagemap, uint6
     else
     {
         uint64_t newentry = (uint64_t)vmm_create_page_table();
+        if(!newentry) printf("Null page allocated!\n");
         pagemap->entry[index] = newentry | flags;
         //printf("pagemap %p  ", pagemap->entry[index]);
         return (struct PageTable*)(pagemap->entry[index] & (~0x1ff));
@@ -83,7 +84,7 @@ void vmm_map_2Mpage(struct PageTable* pagetable, uint64_t virtual, uint64_t phys
     PML2->entry[index2] = physical | flags | PTE_PAGESIZE;
 }
 
-void vmm_map_page(struct PageTable* pagetable, uint64_t virtual, uint64_t physical, uint64_t flags)
+void vmm_map_4Kpage(struct PageTable* pagetable, uint64_t virtual, uint64_t physical, uint64_t flags)
 {
     //Get the indices for the virtual page
     uint64_t vaddr = virtual;
@@ -108,6 +109,9 @@ void vmm_map_page(struct PageTable* pagetable, uint64_t virtual, uint64_t physic
     PML1 = vmm_get_pagemap(PML2, index2, flags);
 
     PML1->entry[index1] = physical | flags;
+
+    serial_printf(SERIAL_PORT1, "%p, %p, %p, %p\r\n", PML4->entry[index4], PML3->entry[index3], PML2->entry[index2], PML1->entry[index1]);
+    //serial_printf(SERIAL_PORT1, "%p, %d, %d, %d, %d, %p\r\n", virtual, index4, index3, index2, index1, physical);
 
     //vmm_flush_tlb((void*)virtual);
 
@@ -216,7 +220,7 @@ void vmm_init()
     //TODO - Make the pages sensitive to RO/RW
     for(uint64_t i = 0; i < kernel_size; i += 4096)
     {
-        vmm_map_page(RootPageDirectory, kernel_virt + i, kernel_phys + i, PTE_PRESENT | PTE_READWRITE);
+        vmm_map_4Kpage(RootPageDirectory, kernel_virt + i, kernel_phys + i, PTE_PRESENT | PTE_READWRITE);
     }
 
     //Map Physical Memory
@@ -233,7 +237,8 @@ void vmm_init()
 
     //serial_write(0x3F8, 'v');
 
-    vmm_PMLwalk(kernel_cr3);
+    //vmm_PMLwalk(kernel_cr3);
+    vmm_PMLwalk(RootPageDirectory);
 
     //vmm_map_page(kernel_cr3, 0xFFFFFFFFC0001000, (uint64_t)pmm_allocpage(), PTE_PRESENT | PTE_READWRITE);
     //uint64_t* value = (uint64_t*)0xFFFFFFFFC0001000;
