@@ -8,7 +8,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Mon May 30 22:41:54 2022
+# Make data base, printed on Sat Jun  4 20:57:43 2022
 
 # Variables
 
@@ -51,7 +51,7 @@ PATH = /home/jon/.vscode-server/bin/c3511e6c69bb39013c4a4b7b9566ec1ca73fc4d5/bin
 # environment
 VSCODE_LOG_STACK = false
 # environment
-VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-83d5c6f1-d72a-4876-86f0-9f6316d9aa03.sock
+VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-6f4bbbe5-c370-477a-9aa1-c42c117ba767.sock
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # environment
@@ -65,7 +65,7 @@ PWD = /home/jon/fzzOS5
 # default
 .LOADED := 
 # environment
-WSL_INTEROP = /run/WSL/8664_interop
+WSL_INTEROP = /run/WSL/357_interop
 # environment
 VSCODE_AMD_ENTRYPOINT = vs/workbench/api/node/extensionHostProcess
 # environment
@@ -73,7 +73,7 @@ HOME = /home/jon
 # environment
 LOGNAME = jon
 # environment
-APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
 # environment
 VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # automatic
@@ -207,6 +207,6 @@ GNUmakefile:
 # strcache performance: lookups = 21 / hit rate = 14%
 # hash-table stats:
 # Load=18/8192=0%, Rehash=0, Collisions=1/21=5%
-# Finished Make data base on Mon May 30 22:41:54 2022
+# Finished Make data base on Sat Jun  4 20:57:43 2022
 
  

@@ -12,9 +12,16 @@
 #include "./device/console/console.h"
 #include "./device/ACPI/acpi.h"
 #include "./memory/liballoc.h"
+#include "./device/serial/stty.h"
+#include "./usermode/usermode.h"
 
+uint64_t user_stack [1024];
 
-
+void user_function()
+{
+    printf("User Mode!\n");
+    for(;;);
+}
 
 void kernel()
 {
@@ -31,7 +38,11 @@ void kernel()
     pmm_init();
     vmm_init();
 
+    user_init();
     
+    printf("Go to user mode!\n");
+
+    to_usermode(user_function, &user_stack[1023]);
 
     //serial_write(0x3F8, 'k');
     
@@ -44,8 +55,8 @@ void kernel()
 
     //int_test();
 
- 
-    printf("Kernel Done!\n");
+    //stty_sendcmd(0);
+    printf("Kernel Done!\n"); 
 
     //putchar('x');
 

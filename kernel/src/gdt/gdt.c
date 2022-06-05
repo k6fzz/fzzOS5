@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+uint8_t rsp2stack[4096];
+
 union gdt_entry
 {
     uint64_t raw;
@@ -132,6 +134,7 @@ void gdt_init()
 
     tss.reserved0 = 0x00;
     tss.RSP0 = (uint64_t)stack + sizeof(stack);
+    tss.RSP2 = (uint64_t)rsp2stack + sizeof(rsp2stack);
     tss.ist1 = (uint64_t)ist1 + sizeof(ist1);
 
     gdtr.base = (uint64_t)&gdt;

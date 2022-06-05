@@ -5,4 +5,5 @@ obj/kernel_c.o: src/kernel.c src/kernel.h src/./boot/boot.h \
  src/./gdt/gdt.h src/./device/framebuffer/framebuffer.h \
  src/./device/console/console.h \
  src/./device/console/../keyboard/keyboard.h src/./device/ACPI/acpi.h \
- src/./memory/liballoc.h
+ src/./memory/liballoc.h src/./device/serial/stty.h \
+ src/./usermode/usermode.h

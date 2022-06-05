@@ -22,7 +22,7 @@ extern uint8_t* _start_of_kernel,
     _end_of_bss,
     _end_of_kernel;
 
-//extern struct pmm_info pmm_info;
+extern const struct pmm_info pmm_info;
 
 extern void vmm_flush_tlb(void* vaddr);
 extern uint64_t vmm_read_cr3();
@@ -110,10 +110,44 @@ void vmm_map_4Kpage(struct PageTable* pagetable, uint64_t virtual, uint64_t phys
 
     PML1->entry[index1] = physical | flags;
 
-    serial_printf(SERIAL_PORT1, "%p, %p, %p, %p\r\n", PML4->entry[index4], PML3->entry[index3], PML2->entry[index2], PML1->entry[index1]);
+    //serial_printf(SERIAL_PORT1, "%p, %p, %p, %p\r\n", PML4->entry[index4], PML3->entry[index3], PML2->entry[index2], PML1->entry[index1]);
     //serial_printf(SERIAL_PORT1, "%p, %d, %d, %d, %d, %p\r\n", virtual, index4, index3, index2, index1, physical);
 
     //vmm_flush_tlb((void*)virtual);
+
+}
+
+void vmm_unmap_page(struct PageTable* pagetable, uint64_t virtual)
+{
+    struct PageTable* PML4 = (struct PageTable*)(phys_to_hh_data((uint64_t)pagetable));
+    struct PageTable* PML3 = NULL;
+    struct PageTable* PML2 = NULL;
+    struct PageTable* PML1 = NULL;
+
+    uint64_t index1, index2, index3, index4;
+
+    virtual >>= 12;
+    index1 = virtual & 0x1ff;
+    virtual >>= 9;
+    index2 = virtual & 0x1ff;
+    virtual >>= 9;
+    index3 = virtual & 0x1ff;
+    virtual >>= 9;
+    index4 = virtual & 0x1ff;
+
+    if(PML4->entry[index4] & 1)
+    {
+        PML3 = (struct PageTable*)((phys_to_hh_data(PML4->entry[index4]) >> 12) * 4096);
+        if(PML3->entry[index3] & 1)
+        {
+            PML2 = (struct PageTable*)((phys_to_hh_data(PML3->entry[index3]) >> 12) * 4096);
+            if(PML2->entry[index2] & 1)
+            {
+
+            }
+        }
+    }
+
 
 }
 
@@ -216,29 +250,43 @@ void vmm_init()
 
     printf("Root = %p\n", RootPageDirectory);
 
-    //Map the Kernel
+    RootPageDirectory->entry[256] = kernel_cr3->entry[256];
+    RootPageDirectory->entry[511] = kernel_cr3->entry[511];
+
+    //vmm_map_4Kpage(RootPageDirectory, 0xFFFFFFFFC0001000, (uint64_t)pmm_allocpage(), PTE_PRESENT | PTE_READWRITE | PTE_USER_SUPERVISOR);
+
+    //Map the Kernel to 0xFFFFFFF8000...
     //TODO - Make the pages sensitive to RO/RW
-    for(uint64_t i = 0; i < kernel_size; i += 4096)
-    {
-        vmm_map_4Kpage(RootPageDirectory, kernel_virt + i, kernel_phys + i, PTE_PRESENT | PTE_READWRITE);
-    }
+    //for(uint64_t i = 0; i < (kernel_size / 4096 + 1); i++)
+    //{
+    //    vmm_map_4Kpage(RootPageDirectory, kernel_virt + (0x1000 * i), kernel_phys + (0x1000 * i), PTE_PRESENT | PTE_READWRITE);
+    //}
 
-    //Map Physical Memory
-    printf("HHDM: %p\n", boot_info.tag_hhdm->addr);
-    for(uint64_t i = 1; i < 261; i++)
-    {   
-        vmm_map_2Mpage(RootPageDirectory, boot_info.tag_hhdm->addr + (0x1000 * i), (0x1000 * i), PTE_PRESENT | PTE_READWRITE);
-    }
+    //Map Physical Memory to 0xFFFF8...
+    //printf("HHDM: %p\n", boot_info.tag_hhdm->addr);
+    //for(uint64_t i = 0; i < pmm_info.totalmem ; i+=0x200000)
+    //{   
+    //    vmm_map_2Mpage(RootPageDirectory, (boot_info.tag_hhdm->addr + i), i, PTE_PRESENT | PTE_READWRITE);
+    //}
 
-    printf("New CR3: %p -- & %p \n", (uint64_t)RootPageDirectory, &RootPageDirectory);
+    //printf("New CR3: %p -- & %p \n", (uint64_t)RootPageDirectory, &RootPageDirectory);
 
     //Load new CR3
-    //vmm_write_cr3((uint64_t)RootPageDirectory);
+    vmm_write_cr3((uint64_t)RootPageDirectory);
 
     //serial_write(0x3F8, 'v');
 
+    //void *a, *b, *c, *d;
+
+    //a=pmm_allocpage();
+    //b=pmm_allocpage();
+    //c=pmm_allocpage();
+    //d=pmm_allocpage();
+
+    //printf("%p, %p, %p, %p", a,b,c,d);
+
     //vmm_PMLwalk(kernel_cr3);
-    vmm_PMLwalk(RootPageDirectory);
+    //vmm_PMLwalk(RootPageDirectory);
 
     //vmm_map_page(kernel_cr3, 0xFFFFFFFFC0001000, (uint64_t)pmm_allocpage(), PTE_PRESENT | PTE_READWRITE);
     //uint64_t* value = (uint64_t*)0xFFFFFFFFC0001000;

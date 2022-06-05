@@ -23,7 +23,7 @@ gdt_load:
     mov gs, ax
     mov ss, ax
 
-    mov ax, [rsi]
+    mov ax, 0x50
     ltr ax
 
     ret

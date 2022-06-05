@@ -5,14 +5,9 @@
 #include "../boot/stivale2.h"
 //#include "bitmap.h"
 
-static struct pmm_info
-{
-    uint64_t totalmem;          //Size of memory in bytes
-    uint64_t usedpages;         //Number of used pages
-    uint64_t totalpages;        //Number of total pages
-    uint8_t* bitmap;            //Address of Bitmap
-    uint64_t bitmap_size;       //Size of Bitmap, in bytes 
-}pmm_info;
+
+
+struct pmm_info pmm_info;
 
 struct pmm_to_vmm_info pmm_vmm_info;
 
@@ -153,7 +148,7 @@ void pmm_init()
     for (uint64_t i = 0; i < pmm_info.bitmap_size; i++)
         {
         pmm_info.bitmap[i] = 0xff;
-        //printf("%x", pmm_info.bitmap[i]);
+        //printf("%x\n", pmm_info.bitmap[i]);
         }
     //printf("\n");
     //printf("Bitmap Set\n");
@@ -202,6 +197,8 @@ void* pmm_allocpage()
         return NULL;
     
     uint64_t index = get_first_unset(pmm_info.bitmap, pmm_info.bitmap_size);
+    
+    bitmap_set(pmm_info.bitmap, index);
 
     pmm_info.usedpages++;
 
