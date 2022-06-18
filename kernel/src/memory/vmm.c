@@ -1,12 +1,12 @@
 #include "vmm.h"
-#include "pmm.h"
+#include <pmm.h>
 #include "memory.h"
-#include "../libk/kstring.h"
-#include "../util/printf.h"
-#include "../boot/boot.h"
-#include "../boot/stivale2.h"
-#include "../device/framebuffer/framebuffer.h"
-#include "../device/serial/serial.h"
+#include <libk/kstring.h>
+#include <kprintf.h>
+#include <boot.h>
+#include <stivale2.h>
+#include <framebuffer.h>
+#include <serial.h>
 
 #define VMM_START_OF_FB     0xC0000000
 #define VMM_SIZE_OF_FB      0x7E9000
@@ -272,7 +272,7 @@ void vmm_init()
     //printf("New CR3: %p -- & %p \n", (uint64_t)RootPageDirectory, &RootPageDirectory);
 
     //Load new CR3
-    vmm_write_cr3((uint64_t)RootPageDirectory);
+    //vmm_write_cr3((uint64_t)RootPageDirectory);
 
     //serial_write(0x3F8, 'v');
 

@@ -2,7 +2,8 @@
 #define _LIBALLOC_H
 
 #include <stdint.h>
-#include "pmm.h"
+#include <pmm.h>
+
 
 /** \defgroup ALLOCHOOKS liballoc hooks 
  *

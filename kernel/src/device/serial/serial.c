@@ -1,5 +1,5 @@
-#include "serial.h"
-#include "../../io/io.h"
+#include <serial.h>
+#include <io.h>
 
 char serial_buffer[256];
 

@@ -1,3 +1,7 @@
 {
-    "makefile.extensionOutputFolder": "./.vscode"
+    "makefile.extensionOutputFolder": "./.vscode",
+    "C_Cpp.default.includePath": [
+        "{$default}",
+        "{$workspaceFolder}/include/**"
+    ],
 }

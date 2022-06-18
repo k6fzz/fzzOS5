@@ -1,8 +1,8 @@
-#include "acpi.h"
-#include "../../boot/boot.h"
-#include "../../boot/stivale2.h"
-#include "../../util/printf.h"
-#include "../../libk/kstring.h"
+#include <acpi.h>
+#include <boot.h>
+#include <stivale2.h>
+#include <kprintf.h>
+#include <libk/kstring.h>
 
 #include <stddef.h>
 #include <stdint.h>

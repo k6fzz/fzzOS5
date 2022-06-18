@@ -1,9 +1,9 @@
 #include <stdarg.h>
 #include <stdint.h>
 
-#include "printf.h"
-#include "../boot/boot.h"
-#include "../device/serial/serial.h"
+#include <kprintf.h>
+#include <boot.h>
+#include <serial.h>
 #include "../device/console/console.h"
 
 void _putchar(char character)

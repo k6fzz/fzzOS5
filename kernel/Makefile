@@ -6,12 +6,14 @@ CCDIR := ~/x86_elf/bin
 SRCDIR := ./src
 OBJDIR := ./obj
 BUILDDIR = ./bin
+INCDIR := ./include
 
 
 GNUEFI = ../gnu-efi
 LIMINE = ../limine
 OVMFDIR = ../OVMFbin
 UTILDIR = ../util
+INITRDDIR = ../initrd
 
 LIMINEEFI := $(LIMINE)/main.efi
 
@@ -21,8 +23,11 @@ LD = $(CCDIR)/x86_64-elf-ld
 STRIP = x86_64-elf-strip
 ASMC = nasm
 
+TARC = tar
+TARFLAGS ?= -cf
+
 #CFLAGS = -fpic -ffreestanding -fno-stack-protector -fshort-wchar -mno-red-zone -fno-exceptions -g
-CFLAGS ?= -O2 -g -Wall -Wextra -pipe
+CFLAGS ?= -O2 -g -Wall -Wextra -pipe -I$(INCDIR)
 override INTERNALCFLAGS := -I. \
 	-std=gnu11           \
 	-ffreestanding       \
@@ -61,6 +66,8 @@ OBJS += $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%_c.o, $(CSRC))
 OBJS += $(patsubst $(SRCDIR)/%.S, $(OBJDIR)/%_S.o, $(GASMSRC))
 DIRS = $(wildcard $(SRCDIR)/*)
 
+INITRD = $(call rwildcard,$(INITRDDIR),*.*)
+
 kernel: $(OBJS) link
 
 #$(OBJDIR)/interrupts/interrupts.o: $(SRCDIR)/interrupts/interrupts.cpp
@@ -94,7 +101,7 @@ link:
 	#$(STRIP) $(STRIPFLAGS) $(BUILDDIR)/kernel.elf
 	readelf -hls $(BUILDDIR)/kernel.elf>kernel.txt
 	objdump -S --disassemble $(BUILDDIR)/kernel.elf>assemble.txt
-	#tar -cvf $(BUILDDIR)/INITRD $(BUILDDIR)/kernel.elf
+	#tar -cvf $(BUILDDIR)/initrd $(BUILDDIR)/$(INITRD)
 
 
 setup:
@@ -127,7 +134,7 @@ bochsimg:
 
 
 clean:
-	rm $(OBJS)
+	rm $(OBJS) !(zapl16.o)
 
 run:
 	qemu-system-x86_64 -drive file=$(BUILDDIR)/$(OSNAME).img -m 256M -cpu qemu64 -drive if=pflash,format=raw,unit=0,file="$(OVMFDIR)/OVMF_CODE-pure-efi.fd",readonly=on -drive if=pflash,format=raw,unit=1,file="$(OVMFDIR)/OVMF_VARS-pure-efi.fd" -net none

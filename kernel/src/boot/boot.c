@@ -1,9 +1,9 @@
 #include <stdint.h>
 #include <stddef.h>
-#include "stivale2.h"
-#include "boot.h"
-#include "../util/printf.h"
-#include "../kernel.h"
+#include <boot.h>
+#include <kprintf.h>
+
+extern void kernel();
 
 uint8_t stack[4096];
 
@@ -29,23 +29,21 @@ static struct stivale2_header_tag_framebuffer framebuffer_hdr_tag = {
     .framebuffer_bpp    = 0
 };
 
+enum stivale_header_flags
+{
+    stivale_header_higherhalf               = (1 << 1),     //return pointers in the higher half
+    stivale_header_PMR                      = (1 << 2),     //enable Protected Memory Ranges (respect ELF PHDR)
+    stivale_header_virtual_kernel_mapping   = (1 << 3),     //fully virtual kernel mappings
+    stivale_header_alwaysset                = (1 << 4)      //always set, disables deprecated feature
+};
 
 //stivale2 Header Structure
 __attribute__((section(".stivale2hdr"), used))
 static struct stivale2_header stivale_hdr = {
     .entry_point = 0,
     .stack = (uintptr_t)stack + sizeof(stack),
-    // Bit 1, if set, causes the bootloader to return to us pointers in the
-    // higher half, which we likely want since this is a higher half kernel.
-    // Bit 2, if set, tells the bootloader to enable protected memory ranges,
-    // that is, to respect the ELF PHDR mandated permissions for the executable's
-    // segments.
-    // Bit 3, if set, enables fully virtual kernel mappings, which we want as
-    // they allow the bootloader to pick whichever *physical* memory address is
-    // available to load the kernel, rather than relying on us telling it where
-    // to load it.
-    // Bit 4 disables a deprecated feature and should always be set.
-    .flags = (1 << 1) | (1 << 2) | (1 << 3) | (1 << 4),
+    //.flags = (1 << 1) | (1 << 2) | (1 << 3) | (1 << 4),
+    .flags = stivale_header_higherhalf | stivale_header_PMR | stivale_header_virtual_kernel_mapping | stivale_header_alwaysset,
     .tags = (uintptr_t)&framebuffer_hdr_tag
 };
 
@@ -122,6 +120,8 @@ void _start(struct stivale2_struct* stivale2_struct)
     boot_info.tag_rsdp = stivale2_get_tag(stivale2_struct, STIVALE2_STRUCT_TAG_RSDP_ID);
     
     boot_info.tag_hhdm = stivale2_get_tag(stivale2_struct, STIVALE2_STRUCT_TAG_HHDM_ID);
+
+    boot_info.tag_modules = stivale2_get_tag(stivale2_struct, STIVALE2_STRUCT_TAG_MODULES_ID);
 
     kernel();
 

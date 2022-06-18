@@ -3,11 +3,11 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "../util/printf.h"
-#include "../device/serial/serial.h"
+#include <kprintf.h>
+#include <serial.h>
 #include "../device/PIC/pic.h"
 #include "../memory/memory.h"
-#include "../io/io.h"
+#include <io.h>
 #include "../device/keyboard/keyboard.h"
 
 

@@ -3,7 +3,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "../keyboard/keyboard.h"
+#include <keyboard.h>
 
 #define ASCII_BS 0x08       //Backspace
 #define ASCII_HT 0x09       //Horizontal Tab

@@ -1,17 +1,17 @@
 #include <stdint.h>
 #include <stddef.h>
-#include "kernel.h"
-#include "./boot/boot.h"
-#include "./util/printf.h"
+//#include "kernel.h"
+#include <boot.h>
+#include <kprintf.h>
 #include "./memory/memory.h"
 #include "./interrupts/idt.h"
-#include "./io/io.h"
-#include "./device/serial/serial.h"
+#include <io.h>
+#include <serial.h>
 #include "./gdt/gdt.h"
-#include "./device/framebuffer/framebuffer.h"
+#include <framebuffer.h>
 #include "./device/console/console.h"
-#include "./device/ACPI/acpi.h"
-#include "./memory/liballoc.h"
+#include <acpi.h>
+#include <libk/liballoc.h>
 #include "./device/serial/stty.h"
 #include "./usermode/usermode.h"
 
@@ -38,11 +38,11 @@ void kernel()
     pmm_init();
     vmm_init();
 
-    user_init();
+    //user_init();
     
-    printf("Go to user mode!\n");
+    //printf("Go to user mode!\n");
 
-    to_usermode(user_function, &user_stack[1023]);
+    //to_usermode(user_function, &user_stack[1023]);
 
     //serial_write(0x3F8, 'k');
     

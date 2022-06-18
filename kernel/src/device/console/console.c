@@ -1,6 +1,6 @@
 #include "console.h"
-#include "../framebuffer/framebuffer.h"
-#include "../../libk/kstring.h"
+#include <framebuffer.h>
+#include <libk/kstring.h>
 
 // Console Font
 #define PSF1_MAGIC0 0x36

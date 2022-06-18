@@ -1,8 +1,8 @@
-#include "pmm.h"
+#include <pmm.h>
 #include "memory.h"
-#include "../util/printf.h"
-#include "../boot/boot.h"
-#include "../boot/stivale2.h"
+#include <kprintf.h>
+#include <boot.h>
+#include <stivale2.h>
 //#include "bitmap.h"
 
 

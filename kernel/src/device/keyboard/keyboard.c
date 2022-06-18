@@ -3,8 +3,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "../../io/io.h"
-#include "../../util/printf.h"
+#include <io.h>
+#include <kprintf.h>
 #include "../console/console.h"
 #include "../../interrupts/idt.h"
 #include "../console/console.h"

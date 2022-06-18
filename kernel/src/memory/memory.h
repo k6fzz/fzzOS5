@@ -4,10 +4,11 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "pmm.h"
+#include <libk/kstring.h>
+
+#include <pmm.h>
 #include "vmm.h"
 //#include "bitmap.h"
-#include "../libk/kstring.h"
 
 
 #define MM_PAGE_SIZE 4096

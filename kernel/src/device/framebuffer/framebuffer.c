@@ -1,5 +1,5 @@
 #include "framebuffer.h"
-#include "../../boot/boot.h"
+#include <boot.h>
 
 
 
