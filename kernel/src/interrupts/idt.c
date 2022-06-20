@@ -8,7 +8,7 @@
 #include "../device/PIC/pic.h"
 #include "../memory/memory.h"
 #include <io.h>
-#include "../device/keyboard/keyboard.h"
+#include <keyboard.h>
 
 
 static const char* _exception_messages[32] =

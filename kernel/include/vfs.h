@@ -36,8 +36,8 @@ typedef struct fs_node
     fs_func_write_t write;
     fs_func_open_t open;
     fs_func_close_t close;
-    fs_func_readdir readdir;
-    fs_func_finddir finddir;
-    fs_node_t* ptr;
+    fs_func_readdir_t readdir;
+    fs_func_finddir_t finddir;
+    struct fs_node* ptr;
 }fs_node_t;
 
