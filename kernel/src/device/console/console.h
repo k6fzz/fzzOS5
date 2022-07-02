@@ -20,6 +20,7 @@ struct console_buffer
 };
 
 void putchar(uint8_t c);
+void putstring(uint8_t* str);
 
 void console_init();
 void console_exec();

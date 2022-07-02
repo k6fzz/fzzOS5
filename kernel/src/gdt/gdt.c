@@ -55,8 +55,8 @@ struct gdt_table
     union gdt_entry kcode;          //0x08       
     union gdt_entry kdata;          //0x10
     union gdt_entry null1;          //0x18
-    union gdt_entry ucode;          //0x20
-    union gdt_entry udata;          //0x28
+    union gdt_entry udata;          //0x20
+    union gdt_entry ucode;          //0x28
     union gdt_entry null2;          //0x30
     union gdt_entry null3;          //0x38
     union gdt_entry null4;          //0x40

@@ -1,10 +1,23 @@
 {
     "configurations": [
         {
-            "name": "Linux",
+            "name": "fzzOS - Kernelspace",
             "includePath": [
                 "${default}",
                 "${workspaceFolder}/kernel/include/**"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "gnu17",
+            "cppStandard": "gnu++14",
+            "intelliSenseMode": "linux-gcc-x64",
+            "configurationProvider": "ms-vscode.makefile-tools"
+        },
+        {
+            "name": "fzzOS - Userspace",
+            "includePath": [
+                "${default}",
+                "${workspaceFolder}/libc/include/**"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

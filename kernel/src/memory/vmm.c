@@ -39,7 +39,7 @@ struct PageTable* vmm_create_page_table()
     if(page == NULL) return NULL;   //If it's null, we can't continue
 
     memset((uint8_t*)page, 0, 4096);    //clear the page
-    return (struct PageTable*)page;
+    return (struct PageTable*)phys_to_hh_data((uint64_t)page);
     
     //return (struct PageTable*)phys_to_hh_data((uint64_t)page);
 }
@@ -250,17 +250,17 @@ void vmm_init()
 
     printf("Root = %p\n", RootPageDirectory);
 
-    RootPageDirectory->entry[256] = kernel_cr3->entry[256];
-    RootPageDirectory->entry[511] = kernel_cr3->entry[511];
+    //RootPageDirectory->entry[256] = kernel_cr3->entry[256];
+    //RootPageDirectory->entry[511] = kernel_cr3->entry[511];
 
     //vmm_map_4Kpage(RootPageDirectory, 0xFFFFFFFFC0001000, (uint64_t)pmm_allocpage(), PTE_PRESENT | PTE_READWRITE | PTE_USER_SUPERVISOR);
 
     //Map the Kernel to 0xFFFFFFF8000...
     //TODO - Make the pages sensitive to RO/RW
-    //for(uint64_t i = 0; i < (kernel_size / 4096 + 1); i++)
-    //{
-    //    vmm_map_4Kpage(RootPageDirectory, kernel_virt + (0x1000 * i), kernel_phys + (0x1000 * i), PTE_PRESENT | PTE_READWRITE);
-    //}
+    for(uint64_t i = 0; i < (kernel_size / 4096 + 1); i++)
+    {
+        vmm_map_4Kpage(RootPageDirectory, kernel_virt + (0x1000 * i), kernel_phys + (0x1000 * i), PTE_PRESENT | PTE_READWRITE);
+    }
 
     //Map Physical Memory to 0xFFFF8...
     //printf("HHDM: %p\n", boot_info.tag_hhdm->addr);

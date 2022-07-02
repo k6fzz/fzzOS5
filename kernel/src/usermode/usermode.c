@@ -1,18 +1,18 @@
 #include "usermode.h"
 #include "../memory/memory.h"
-
+#include <kprintf.h>
 
 
 extern void enable_sce();
-
-uint64_t _syscall(uint64_t a, uint64_t b, uint64_t c, uint64_t d, uint64_t e)
-{
-    
-}
+extern void __syscall_handler();
+extern void enable_syscall(uint64_t STAR, void* handler);
 
 void user_init()
 {
-    enable_sce();
+    enable_syscall(0x00180008, &__syscall_handler);
+    
+    //enable_sce();
+    //set_lstar(__syscall_handler);
 }
 
 uint64_t syscall_handler(uint64_t num, uint64_t param1, uint64_t param2, uint64_t param3, uint64_t param4, uint64_t param5)
@@ -22,7 +22,7 @@ uint64_t syscall_handler(uint64_t num, uint64_t param1, uint64_t param2, uint64_
         case 0:         //read
             break;
         case 1:         //write
-            kprintf(param1);
+            printf((char*)param1);
             break;
         case 2:         //open
             break;

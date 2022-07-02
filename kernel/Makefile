@@ -13,7 +13,7 @@ GNUEFI = ../gnu-efi
 LIMINE = ../limine
 OVMFDIR = ../OVMFbin
 UTILDIR = ../util
-INITRDDIR = ../initrd
+INITDIR = ../init
 
 LIMINEEFI := $(LIMINE)/main.efi
 
@@ -97,7 +97,7 @@ $(OBJDIR)/%_S.o: $(SRCDIR)/%.s
 	
 link:
 	@ echo !==== Linking!
-	$(LD) $(LDFLAGS) $(INTERNALLDFLAGS) -o $(BUILDDIR)/kernel.elf $(OBJS) $(OBJDIR)/zapl16.o
+	$(LD) $(LDFLAGS) $(INTERNALLDFLAGS) -o $(BUILDDIR)/kernel.elf $(OBJS) zapl16.o
 	#$(STRIP) $(STRIPFLAGS) $(BUILDDIR)/kernel.elf
 	readelf -hls $(BUILDDIR)/kernel.elf>kernel.txt
 	objdump -S --disassemble $(BUILDDIR)/kernel.elf>assemble.txt
@@ -118,6 +118,7 @@ buildimg:
 	mcopy -i $(BUILDDIR)/$(OSNAME).img $(LIMINE)/limine.cfg ::/EFI/BOOT/
 	mcopy -i $(BUILDDIR)/$(OSNAME).img startup.nsh ::
 	mcopy -i $(BUILDDIR)/$(OSNAME).img $(BUILDDIR)/kernel.elf ::
+	mcopy -i $(BUILDDIR)/$(OSNAME).img $(INITDIR)/init.elf ::
 
 bochsimg:
 	#2/16/63
@@ -134,7 +135,7 @@ bochsimg:
 
 
 clean:
-	rm $(OBJS) !(zapl16.o)
+	rm -rf $(OBJDIR)/*
 
 run:
 	qemu-system-x86_64 -drive file=$(BUILDDIR)/$(OSNAME).img -m 256M -cpu qemu64 -drive if=pflash,format=raw,unit=0,file="$(OVMFDIR)/OVMF_CODE-pure-efi.fd",readonly=on -drive if=pflash,format=raw,unit=1,file="$(OVMFDIR)/OVMF_VARS-pure-efi.fd" -net none

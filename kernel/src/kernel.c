@@ -19,7 +19,10 @@ uint64_t user_stack [1024];
 
 void user_function()
 {
-    printf("User Mode!\n");
+    
+    printf("Hello User World!");
+    serial_write_str(0x3F8, "Hello User World!");
+
     for(;;);
 }
 
@@ -38,11 +41,11 @@ void kernel()
     pmm_init();
     vmm_init();
 
-    //user_init();
+    user_init();
     
-    //printf("Go to user mode!\n");
+    printf("Go to user mode!\n");
 
-    //to_usermode(user_function, &user_stack[1023]);
+    to_usermode(user_function, &user_stack[1023]);
 
     //serial_write(0x3F8, 'k');
     
@@ -57,6 +60,7 @@ void kernel()
 
     //stty_sendcmd(0);
     printf("Kernel Done!\n"); 
+    putstring("Putstring.\n");
 
     //putchar('x');
 

@@ -141,7 +141,14 @@ void putchar(uint8_t c)
     console_info.cursor_x += 8;
 }
 
-
+void putstring(uint8_t* str)
+{
+    while(*str)
+    {
+        putchar(*str);
+        str++;
+    }
+}
 
 void console_init()
 {
