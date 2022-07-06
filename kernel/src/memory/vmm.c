@@ -5,6 +5,7 @@
 #include <kprintf.h>
 #include <boot.h>
 #include <stivale2.h>
+#include <debug.h>
 #include <framebuffer.h>
 #include <serial.h>
 
@@ -27,6 +28,10 @@ extern const struct pmm_info pmm_info;
 extern void vmm_flush_tlb(void* vaddr);
 extern uint64_t vmm_read_cr3();
 extern void vmm_write_cr3(uint64_t value);
+extern uint32_t vmm_read_efer();
+extern void vmm_enable_nxe();
+
+
 struct PageTable* RootPageDirectory = {0};
 
 struct PageTable* kernel_cr3 = {0};
@@ -110,8 +115,8 @@ void vmm_map_4Kpage(struct PageTable* pagetable, uint64_t virtual, uint64_t phys
 
     PML1->entry[index1] = physical | flags;
 
-    //serial_printf(SERIAL_PORT1, "%p, %p, %p, %p\r\n", PML4->entry[index4], PML3->entry[index3], PML2->entry[index2], PML1->entry[index1]);
-    //serial_printf(SERIAL_PORT1, "%p, %d, %d, %d, %d, %p\r\n", virtual, index4, index3, index2, index1, physical);
+    //serial_printf(SERIAL_PORT1, "%p, %p, %p, %p\n", PML4->entry[index4], PML3->entry[index3], PML2->entry[index2], PML1->entry[index1]);
+    //serial_printf(SERIAL_PORT1, "%p, %d, %d, %d, %d, %p\n", virtual, index4, index3, index2, index1, physical);
 
     //vmm_flush_tlb((void*)virtual);
 
@@ -137,18 +142,20 @@ void vmm_unmap_page(struct PageTable* pagetable, uint64_t virtual)
 
     if(PML4->entry[index4] & 1)
     {
-        PML3 = (struct PageTable*)((phys_to_hh_data(PML4->entry[index4]) >> 12) * 4096);
+        PML3 = (struct PageTable*)((PML4->entry[index4] >> 12) * 4096);
         if(PML3->entry[index3] & 1)
         {
-            PML2 = (struct PageTable*)((phys_to_hh_data(PML3->entry[index3]) >> 12) * 4096);
+            PML2 = (struct PageTable*)((PML3->entry[index3] >> 12) * 4096);
             if(PML2->entry[index2] & 1)
             {
-
+                PML1 = (struct PageTable*)((PML2->entry[index2] >> 12) * 4096);
+                if(PML1->entry[index1] & 1)
+                {
+                    PML1->entry[index1] = 0x00;
+                }
             }
         }
     }
-
-
 }
 
 //returns a physical address for a given virtual address
@@ -229,26 +236,76 @@ void vmm_init()
 {
     kernel_cr3 = (struct PageTable*)vmm_read_cr3();
     printf("CR3: %p\n", (uint64_t)kernel_cr3);
+    uint32_t efer = vmm_read_efer();
+    uint32_t NXE = efer & (1 << 11);
+    printf("EFER: %p  NXE: %d\n", efer, NXE);
  
-    uint64_t kernel_phys = boot_info.tag_kernel_base_address->physical_base_address;
-    uint64_t kernel_virt = boot_info.tag_kernel_base_address->virtual_base_address;
-    uint64_t kernel_size = (uint64_t)&_end_of_kernel - (uint64_t)&_start_of_kernel;
+    //Create the Kernel PML4 table
+    RootPageDirectory = vmm_create_page_table();
 
-    printf("Kernel Virtual: %p   Kernal Physical: %p\n", kernel_virt, kernel_phys);
+    //Figure out where the kernel is and how big it is from the boot_info struct
+    uint64_t kernel_physical = boot_info.tag_kernel_base_address->physical_base_address;
+    uint64_t kernel_virtual = boot_info.tag_kernel_base_address->virtual_base_address;
+    uint64_t kernel_offset = kernel_virtual - kernel_physical;
 
-    printf("Kernel: %p - %p Size: %d\n", &_start_of_kernel, &_end_of_kernel, kernel_size);
-    printf("Text:   %p - %p \n", &_start_of_text, &_end_of_text);
-    printf("Data:   %p - %p \n", &_start_of_data, &_end_of_data);
-    printf("ROData: %p - %p \n", &_start_of_rodata, &_end_of_rodata);
-    printf("BSS:    %p - %p \n", &_start_of_bss, &_end_of_bss);
+/*PMRS Permissions -
+    0 - ---
+    1 - --E
+    2 - -W-
+    3 - -WE
+    4 - R--
+    5 - R-E
+    6 - RWE
+*/
+
+/*PTE Permissions
+    PTE_PRESENT             Present if Set
+    PTE_READWRITE           Writable if set
+    PTE_USER_SUPERVISOR     User accessable if set
+    PTE_EXECUTE_DISABLE     Disables execute if set (if EFER:11 is set)
+*/
+
+    for(uint64_t i = 0; i < boot_info.tag_pmrs->entries; i++)
+    {
+        uint64_t virt = boot_info.tag_pmrs->pmrs[i].base;
+        uint64_t phys = virt - kernel_offset;
+        uint64_t flags = 0;
+        uint64_t perms = boot_info.tag_pmrs->pmrs[i].permissions;
+        
+        if(perms & 0x02) //is read/write bit set?
+        {
+            flags |= PTE_READWRITE;
+        }
+
+        flags |= PTE_PRESENT;
+        
+        DEBUG_MSG("Base: %p  Length: %x  Flags: %x\n", boot_info.tag_pmrs->pmrs[i].base, boot_info.tag_pmrs->pmrs[i].length, boot_info.tag_pmrs->pmrs[i].permissions);
+        for(uint64_t j = 0; j < boot_info.tag_pmrs->pmrs[i].length; j+=0x1000)
+        {
+            vmm_map_4Kpage(RootPageDirectory, virt + j, phys + j, flags);
+            DEBUG_MSG("Kernel : %p %p %x\n", virt + j, phys + j, flags); 
+        } 
+    }
+
+
+    //uint64_t kernel_phys = boot_info.tag_kernel_base_address->physical_base_address;
+    //uint64_t kernel_virt = boot_info.tag_kernel_base_address->virtual_base_address;
+    //uint64_t kernel_size = (uint64_t)&_end_of_kernel - (uint64_t)&_start_of_kernel;
+
+    //printf("Kernel Virtual: %p   Kernal Physical: %p\n", kernel_virt, kernel_phys);
+
+    //printf("Kernel: %p - %p Size: %d\n", &_start_of_kernel, &_end_of_kernel, kernel_size);
+    //printf("Text:   %p - %p \n", &_start_of_text, &_end_of_text);
+    //printf("Data:   %p - %p \n", &_start_of_data, &_end_of_data);
+    //printf("ROData: %p - %p \n", &_start_of_rodata, &_end_of_rodata);
+    //printf("BSS:    %p - %p \n", &_start_of_bss, &_end_of_bss);
 
     //vmm_pagewalk((uint64_t)&_start_of_kernel, (uint64_t*)read_cr3());
     //vmm_pagewalk((uint64_t)&_end_of_kernel, (uint64_t*)read_cr3());
 
-    //Create the Kernel PML4 table
-    RootPageDirectory = vmm_create_page_table();
+    
 
-    printf("Root = %p\n", RootPageDirectory);
+    //printf("Root = %p\n", RootPageDirectory);
 
     //RootPageDirectory->entry[256] = kernel_cr3->entry[256];
     //RootPageDirectory->entry[511] = kernel_cr3->entry[511];
@@ -257,24 +314,27 @@ void vmm_init()
 
     //Map the Kernel to 0xFFFFFFF8000...
     //TODO - Make the pages sensitive to RO/RW
-    for(uint64_t i = 0; i < (kernel_size / 4096 + 1); i++)
-    {
-        vmm_map_4Kpage(RootPageDirectory, kernel_virt + (0x1000 * i), kernel_phys + (0x1000 * i), PTE_PRESENT | PTE_READWRITE);
-    }
-
-    //Map Physical Memory to 0xFFFF8...
-    //printf("HHDM: %p\n", boot_info.tag_hhdm->addr);
-    //for(uint64_t i = 0; i < pmm_info.totalmem ; i+=0x200000)
-    //{   
-    //    vmm_map_2Mpage(RootPageDirectory, (boot_info.tag_hhdm->addr + i), i, PTE_PRESENT | PTE_READWRITE);
+    //for(uint64_t i = 0; i < (kernel_size / 4096 + 1); i++)
+    //{
+    //    vmm_map_4Kpage(RootPageDirectory, kernel_virt + (0x1000 * i), kernel_phys + (0x1000 * i), PTE_PRESENT | PTE_READWRITE);
     //}
 
-    //printf("New CR3: %p -- & %p \n", (uint64_t)RootPageDirectory, &RootPageDirectory);
+    //Map Physical Memory to 0xFFFF8...
+    printf("HHDM: %p\n", boot_info.tag_hhdm->addr);
+    for(uint64_t i = 0; i < pmm_info.totalmem ; i+=0x1000)
+    {   
+        vmm_map_4Kpage(RootPageDirectory, (boot_info.tag_hhdm->addr + i), i, PTE_PRESENT | PTE_READWRITE);
+    }
+
+    DEBUG_MSG("New CR3: %p -- & %p \n", (uint64_t)RootPageDirectory, &RootPageDirectory);
+    printf("New CR3: %p -- & %p \n", (uint64_t)RootPageDirectory, &RootPageDirectory);
 
     //Load new CR3
     //vmm_write_cr3((uint64_t)RootPageDirectory);
 
-    //serial_write(0x3F8, 'v');
+    //DEBUG_MSG("CR3 Loaded\n");
+
+    //serial_printf(SERIAL_PORT1, "New PML4\r\n");
 
     //void *a, *b, *c, *d;
 
@@ -285,8 +345,10 @@ void vmm_init()
 
     //printf("%p, %p, %p, %p", a,b,c,d);
 
-    //vmm_PMLwalk(kernel_cr3);
-    //vmm_PMLwalk(RootPageDirectory);
+    vmm_PMLwalk(kernel_cr3);
+
+    DEBUG_MSG("New PML4\n");
+    vmm_PMLwalk(RootPageDirectory);
 
     //vmm_map_page(kernel_cr3, 0xFFFFFFFFC0001000, (uint64_t)pmm_allocpage(), PTE_PRESENT | PTE_READWRITE);
     //uint64_t* value = (uint64_t*)0xFFFFFFFFC0001000;

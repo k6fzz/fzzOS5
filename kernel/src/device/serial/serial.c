@@ -51,6 +51,7 @@ void serial_write_str(uint16_t port, char* data)
     while(data[i] != 0)
     {
         serial_write(port, data[i]);
+        //if(data[i] == '\n') serial_write(port, '\r');
         i++;
     }
 }

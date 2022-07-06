@@ -1,6 +1,4 @@
 make all --print-data-base --no-builtin-variables --no-builtin-rules --question
-make: *** No rule to make target 'all'.  Stop.
-
 # GNU Make 4.2.1
 # Built for x86_64-pc-linux-gnu
 # Copyright (C) 1988-2016 Free Software Foundation, Inc.
@@ -8,7 +6,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Sat Jul  2 15:04:35 2022
+# Make data base, printed on Mon Jul  4 22:29:05 2022
 
 # Variables
 
@@ -51,7 +49,7 @@ PATH = /home/jon/.vscode-server/bin/30d9c6cd9483b2cc586687151bcbcd635f373630/bin
 # environment
 VSCODE_LOG_STACK = false
 # environment
-VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-dbfcb401-f77f-4f8c-bac4-98b2a813bb44.sock
+VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-b8ff2487-3ffb-458a-882b-229361d56448.sock
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # environment
@@ -65,7 +63,7 @@ PWD = /home/jon/fzzOS5
 # default
 .LOADED := 
 # environment
-WSL_INTEROP = /run/WSL/13_interop
+WSL_INTEROP = /run/WSL/7702_interop
 # environment
 VSCODE_AMD_ENTRYPOINT = vs/workbench/api/node/extensionHostProcess
 # environment
@@ -73,7 +71,7 @@ HOME = /home/jon
 # environment
 LOGNAME = jon
 # environment
-APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
 # environment
 VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # automatic
@@ -207,6 +205,8 @@ GNUmakefile:
 # strcache performance: lookups = 25 / hit rate = 12%
 # hash-table stats:
 # Load=22/8192=0%, Rehash=0, Collisions=1/25=4%
-# Finished Make data base on Sat Jul  2 15:04:35 2022
+# Finished Make data base on Mon Jul  4 22:29:05 2022
 
  
+make: *** No rule to make target 'all'.  Stop.
+

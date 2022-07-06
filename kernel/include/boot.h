@@ -3,11 +3,10 @@
 #include <stdint.h>
 #include <stivale2.h>
 
-void (*term_write)(const char *string, uint64_t length);
+//void (*term_write)(const char *string, uint64_t length);
 //void* stivale2_get_tag(struct stivale2_struct *stivale2_struct, uint64_t id);
 
-void kinit_stivale2(struct stivale2_struct* stivale2_struct);
-
+//void kinit_stivale2(struct stivale2_struct* stivale2_struct);
 
 struct bootinfo_t
 {
@@ -19,6 +18,7 @@ struct bootinfo_t
     struct stivale2_struct_tag_rsdp* tag_rsdp;
     struct stivale2_struct_kernel_file_v2* tag_kernel_file;
     struct stivale2_struct_tag_hhdm* tag_hhdm;
+    struct stivale2_struct_tag_pmrs* tag_pmrs;
 };
 
 extern struct bootinfo_t boot_info;

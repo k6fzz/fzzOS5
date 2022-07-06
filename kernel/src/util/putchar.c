@@ -18,11 +18,11 @@ void _putchar(char character)
 
 void serial_printf(uint16_t port, const char* format, ...)
 {
-    char buffer[64];
+    char buffer[256];
 
     va_list argptr;
     va_start(argptr, format);
-    vsnprintf(buffer, 64, format, argptr);
+    vsnprintf(buffer, 256, format, argptr);
     va_end(argptr);
 
     serial_write_str(port, buffer);

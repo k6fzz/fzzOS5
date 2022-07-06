@@ -4,4 +4,7 @@
         "{$default}",
         "{$workspaceFolder}/include/**"
     ],
+    "C_Cpp.default.defines": [
+        "__DEBUG__"
+    ],
 }

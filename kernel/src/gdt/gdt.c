@@ -99,11 +99,6 @@ uint8_t ist0[4096];
 uint8_t ist1[4096];
 uint8_t ist2[4096];
 
-void print_gdt()
-{
-
-}
-
 void gdt_init()
 {
     gdt.null0.raw = 0x00;

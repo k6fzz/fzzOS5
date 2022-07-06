@@ -27,7 +27,7 @@ TARC = tar
 TARFLAGS ?= -cf
 
 #CFLAGS = -fpic -ffreestanding -fno-stack-protector -fshort-wchar -mno-red-zone -fno-exceptions -g
-CFLAGS ?= -O2 -g -Wall -Wextra -pipe -I$(INCDIR)
+CFLAGS ?= -O2 -g -Wall -Wextra -pipe -I$(INCDIR) -D__DEBUG__
 override INTERNALCFLAGS := -I. \
 	-std=gnu11           \
 	-ffreestanding       \

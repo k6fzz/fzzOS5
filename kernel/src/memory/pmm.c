@@ -2,6 +2,7 @@
 #include "memory.h"
 #include <kprintf.h>
 #include <boot.h>
+#include <debug.h>
 #include <stivale2.h>
 //#include "bitmap.h"
 
@@ -201,6 +202,8 @@ void* pmm_allocpage()
     bitmap_set(pmm_info.bitmap, index);
 
     pmm_info.usedpages++;
+
+    DEBUG_MSG("PMM ALLOC: %p\n", (index * PAGE_SIZE));
 
     return (void*)(index * PAGE_SIZE);
 }

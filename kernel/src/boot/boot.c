@@ -1,9 +1,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <boot.h>
-#include <kprintf.h>
 
-extern void kernel();
+extern __attribute__((noreturn)) void kernel();
 
 uint8_t stack[4096];
 
@@ -48,7 +47,6 @@ static struct stivale2_header stivale_hdr = {
 };
 
 
-
 static void *stivale2_get_tag(struct stivale2_struct *stivale2_struct, uint64_t id) {
     struct stivale2_tag *current_tag = (void *)stivale2_struct->tags;
     for (;;) {
@@ -62,39 +60,34 @@ static void *stivale2_get_tag(struct stivale2_struct *stivale2_struct, uint64_t 
     }
 }
 
-// Entry point. We're going to make sure the bootloader did what it's supposed to do, then pass off to the kernel.
-//void _start(struct stivale2_struct *stivale2_struct) 
+//Entry point. We're going to make sure the bootloader did what it's supposed to do, then pass off to the kernel.
 void _start(struct stivale2_struct* stivale2_struct)
 {
-
-
-
     // Let's get the terminal structure tag from the bootloader.
-    struct stivale2_struct_tag_terminal *term_str_tag;
-    term_str_tag = stivale2_get_tag(stivale2_struct, STIVALE2_STRUCT_TAG_TERMINAL_ID);
+    //struct stivale2_struct_tag_terminal *term_str_tag;
+    //term_str_tag = stivale2_get_tag(stivale2_struct, STIVALE2_STRUCT_TAG_TERMINAL_ID);
 
     // Check if the tag was actually found.
-    if (term_str_tag == NULL) {
+    //if (term_str_tag == NULL) {
         // It wasn't found, just hang...
-        for (;;) {
-            asm ("hlt");
-        }
-    }
+    //    for (;;) {
+    //        asm ("hlt");
+    //    }
+    //}
 
-    void* term_write_ptr = (void *)term_str_tag->term_write;
-    term_write = term_write_ptr;
+    //void* term_write_ptr = (void *)term_str_tag->term_write;
+    //term_write = term_write_ptr;
     //printf("Terminal Initialized\n");
 
     //Grab the Framebuffer
     boot_info.tag_framebuffer = stivale2_get_tag(stivale2_struct, STIVALE2_STRUCT_TAG_FRAMEBUFFER_ID);
     if (boot_info.tag_framebuffer == NULL)
     {
-    //    printf("Framebuffer Not Found\n");
+    //  printf("Framebuffer Not Found\n");
         for( ;; ) 
             asm("hlt");
     }
-    //printf("Framebuffer found at %x\n", boot_info.tag_framebuffer->framebuffer_addr);
-
+ 
     //Memory Map
     boot_info.tag_memmap = stivale2_get_tag(stivale2_struct, STIVALE2_STRUCT_TAG_MEMMAP_ID);
     if (boot_info.tag_memmap == NULL)
@@ -103,31 +96,54 @@ void _start(struct stivale2_struct* stivale2_struct)
         for( ;; ) 
             asm("hlt");
     }
-    //printf("Memory Map at %x\n", boot_info.tag_memmap);
-
+ 
     //Kernel Base Address
     boot_info.tag_kernel_base_address = stivale2_get_tag(stivale2_struct, STIVALE2_STRUCT_TAG_KERNEL_BASE_ADDRESS_ID);
     if (boot_info.tag_kernel_base_address == NULL)
     {
     //    printf("Base Address Not Found\n");
-        //for( ;; ) 
-        //    asm("hlt");
+        for( ;; ) 
+            asm("hlt");
     }
-    //printf("Kernel Physical Base Address %x\n", boot_info.tag_kernel_base_address->physical_base_address);
-    //printf("Kernel Virtual Base Address  %x\n", boot_info.tag_kernel_base_address->virtual_base_address);
-    //printf("--------\n");
 
+    //ACPI RSDP
     boot_info.tag_rsdp = stivale2_get_tag(stivale2_struct, STIVALE2_STRUCT_TAG_RSDP_ID);
+    if (boot_info.tag_rsdp == NULL)
+    {
+        for( ;; )
+            asm("hlt");
+    }
     
+    //Higher Half Direct Map
     boot_info.tag_hhdm = stivale2_get_tag(stivale2_struct, STIVALE2_STRUCT_TAG_HHDM_ID);
+    if (boot_info.tag_hhdm == NULL)
+    {
+        for( ;; )
+            asm("hlt");
+    }
 
+    //Protected Memory Ranges
+    boot_info.tag_pmrs = stivale2_get_tag(stivale2_struct, STIVALE2_STRUCT_TAG_PMRS_ID);
+    if (boot_info.tag_pmrs == NULL)
+    {
+        for( ;; )
+            asm("hlt");
+    }
+
+
+    //Kernel Modules
     boot_info.tag_modules = stivale2_get_tag(stivale2_struct, STIVALE2_STRUCT_TAG_MODULES_ID);
+    if (boot_info.tag_modules == NULL)
+    {
+        for( ;; )
+            asm("hlt");
+    }
 
     kernel();
-
 
     // We should never get here, but just in case...
     for (;;) {
         asm ("hlt");
     }
 }
+

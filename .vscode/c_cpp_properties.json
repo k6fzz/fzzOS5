@@ -6,7 +6,7 @@
                 "${default}",
                 "${workspaceFolder}/kernel/include/**"
             ],
-            "defines": [],
+            "defines": ["__DEBUG__"],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "gnu17",
             "cppStandard": "gnu++14",

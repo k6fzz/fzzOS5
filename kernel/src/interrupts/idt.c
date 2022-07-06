@@ -3,6 +3,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <debug.h>
+
 #include <kprintf.h>
 #include <serial.h>
 #include "../device/PIC/pic.h"
@@ -10,6 +12,17 @@
 #include <io.h>
 #include <keyboard.h>
 
+static const char* _page_fault_errors[8] =
+{
+    "Present",
+    "Write",
+    "User",
+    "Reserved Write",
+    "Instruction Fetch",
+    "Protection Key",
+    "Shadow Stack",
+    "SGX Violation",
+};
 
 static const char* _exception_messages[32] =
 {
@@ -113,6 +126,7 @@ void idt_init()
     pic_clear_mask(1);
     pic_clear_mask(0);
 
+    serial_printf(SERIAL_PORT1, "IDT: %p\n", (uint64_t)&idt);
 
     //__asm__ volatile ("lidt %0" : : "m"(idtr));
     //__asm__ volatile ("sti");
@@ -128,12 +142,30 @@ uint64_t interrupt_handler(uint64_t rsp)
         {
             //kernel panic
             uint64_t cr2 = read_cr2();
-            serial_write(0x3F8, frame->int_no + 65);
+            serial_printf(SERIAL_PORT1, "CPU Exception: %d  ERR %x  CR2 %p\r\n", frame->int_no, frame->err_no, cr2);
+            serial_printf(SERIAL_PORT1, _exception_messages[frame->int_no]);
+            serial_printf(SERIAL_PORT1, "\n");
+            if (frame->int_no == 0xE) 
+            {
+                serial_printf(SERIAL_PORT1, _page_fault_errors[frame->err_no]);
+                serial_printf(SERIAL_PORT1, "\n");
+            }
+            serial_printf(SERIAL_PORT1, "SS: %x  RSP: %x  RFLAGS: %x  CS: %x  RIP: %x\n", frame->ss, frame->rsp, frame->rflags, frame->cs, frame->rip);
+            serial_printf(SERIAL_PORT1, "rax: %x  rbx: %x  rcx: %x  rdx: %x  rsi: %x  rdi: %x\n", frame->rax, frame->rbx, frame->rcx, frame->rdx, frame->rsi, frame->rdi);
+            serial_printf(SERIAL_PORT1, "r8: %x  r9: %x  r10: %x  r11: %x  r12: %x  r13: %x\n", frame->r8, frame->r9, frame->r10, frame->r11, frame->r12, frame->r13);
+            serial_printf(SERIAL_PORT1, "r14: %x  r15: %x\n", frame->r14, frame->r15);
             printf("\nCPU Exception! INT %d   ERR %x  CR2 %p\n", frame->int_no, frame->err_no, cr2);
             printf(_exception_messages[frame->int_no]);
             printf("\n");
+            if (frame->int_no == 0xE) 
+            {
+                printf(_page_fault_errors[frame->err_no]);
+                printf("\n");
+            }
             printf("SS: %x  RSP: %x  RFLAGS: %x  CS: %x  RIP: %x\n", frame->ss, frame->rsp, frame->rflags, frame->cs, frame->rip);
-            printf("rax: %x  rdi: %x", frame->rax, frame->rdi);
+            printf("rax: %x  rbx: %x  rcx: %x  rdx: %x  rsi: %x  rdi: %x\n", frame->rax, frame->rbx, frame->rcx, frame->rdx, frame->rsi, frame->rdi);
+            printf("r8: %x  r9: %x  r10: %x  r11: %x  r12: %x  r13: %x\n", frame->r8, frame->r9, frame->r10, frame->r11, frame->r12, frame->r13);
+            printf("r14: %x  r15: %x\n", frame->r14, frame->r15);
             asm("cli");
             asm("hlt");
             for(;;);

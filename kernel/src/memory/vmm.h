@@ -3,7 +3,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <pmm.h>
+//#include <pmm.h>
 
 #define PTE_PRESENT             1
 #define PTE_READWRITE           2
@@ -15,12 +15,13 @@
 #define PTE_PAT                 128
 #define PTE_PAGESIZE            128
 #define PTE_GLOBAL              256
+#define PTE_EXECUTE_DISABLE     0x8000000000000000UL
+
 
 struct PageTable
 {
     uint64_t entry[512];
 }__attribute__((packed));
-
 
 
 extern struct PageTable* RootPageDirectory;

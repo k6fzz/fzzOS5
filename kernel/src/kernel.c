@@ -1,6 +1,6 @@
 #include <stdint.h>
 #include <stddef.h>
-//#include "kernel.h"
+#include <debug.h>
 #include <boot.h>
 #include <kprintf.h>
 #include "./memory/memory.h"
@@ -15,20 +15,8 @@
 #include "./device/serial/stty.h"
 #include "./usermode/usermode.h"
 
-uint64_t user_stack [1024];
-
-void user_function()
-{
-    
-    printf("Hello User World!");
-    serial_write_str(0x3F8, "Hello User World!");
-
-    for(;;);
-}
-
 void kernel()
 {
-
     //printf("Kernel Now\n");
     serial_init(0x3F8);     //COM1
     gdt_init();
@@ -36,36 +24,28 @@ void kernel()
     fb_init();
     console_init();
 
-    //serial_write(0x3F8, 'm');
-
     pmm_init();
     vmm_init();
 
     user_init();
     
-    printf("Go to user mode!\n");
+    serial_printf(SERIAL_PORT1, "Kernel Physical Base Address %x\n", boot_info.tag_kernel_base_address->physical_base_address);
+    serial_printf(SERIAL_PORT1, "Kernel Virtual Base Address  %x\n", boot_info.tag_kernel_base_address->virtual_base_address);
 
-    to_usermode(user_function, &user_stack[1023]);
+    serial_printf(SERIAL_PORT1, "PMRS Entries:  %d\n", boot_info.tag_pmrs->entries);
+    for(uint64_t i = 0; i < boot_info.tag_pmrs->entries; i++)
+    {
+        serial_printf(SERIAL_PORT1, "Base: %p,  Length: %x,  Permissions: %d\n", boot_info.tag_pmrs->pmrs[i].base, boot_info.tag_pmrs->pmrs[i].length, boot_info.tag_pmrs->pmrs[i].permissions);
+    }
+    //printf("--------\n");   
+    //printf("Memory Map at %x\n", boot_info.tag_memmap);
+    //printf("Framebuffer found at %x\n", boot_info.tag_framebuffer->framebuffer_addr);
 
-    //serial_write(0x3F8, 'k');
     
-    //serial_write_str(SERIAL_PORT1, "Testing!\n\rMore Testing!");
 
-    //serial_printf(SERIAL_PORT1, "Hello World! %p\r\n", boot_info.tag_hhdm->addr);
-    //acpi_init();
 
-    //fb_clearscreen(FB_COLOR_BLUE);
 
-    //int_test();
-
-    //stty_sendcmd(0);
     printf("Kernel Done!\n"); 
-    putstring("Putstring.\n");
-
-    //putchar('x');
-
-    //serial_write(0x3F8, 'x');
-
 
     while(true)
     {
