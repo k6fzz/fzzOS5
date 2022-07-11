@@ -2,9 +2,11 @@
     "makefile.extensionOutputFolder": "./.vscode",
     "C_Cpp.default.includePath": [
         "{$default}",
-        "{$workspaceFolder}/include/**"
+        "{$workspaceFolder}/kernel/include/**",
+        "${workspaceFolder}/kernel/include/**"
     ],
     "C_Cpp.default.defines": [
         "__DEBUG__"
     ],
+    "C_Cpp.default.intelliSenseMode": "gcc-x64",
 }

@@ -1,7 +1,7 @@
 
 OSNAME = fzzOS
 
-CCDIR := ~/x86_elf/bin
+CCDIR := ../crosscompiler/bin
 
 SRCDIR := ./src
 OBJDIR := ./obj
