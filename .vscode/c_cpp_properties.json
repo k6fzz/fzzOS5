@@ -7,7 +7,7 @@
                 "${workspaceFolder}/kernel/include/**"
             ],
             "defines": ["__DEBUG__"],
-            "compilerPath": "/usr/bin/gcc",
+            "compilerPath": "./crosscompiler/bin",
             "cStandard": "gnu17",
             "cppStandard": "gnu++14",
             "intelliSenseMode": "linux-gcc-x64",
