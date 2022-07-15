@@ -23,7 +23,7 @@ struct fb_info
     uint16_t pitch;         //bytes per line
     uint16_t bpp;           //bits per pixel
     uint32_t max_pixels;    //total number of pixels
-}fb_info;
+};
 
 void fb_init();
 

@@ -9,7 +9,7 @@ void int_test();
 uint64_t interrupt_handler(uint64_t rsp);
 uint64_t irq_handler(uint64_t rsp);
 
-uint64_t pit_ticks;
+extern uint64_t pit_ticks;
 
 struct interrupt_stack_frame
 {

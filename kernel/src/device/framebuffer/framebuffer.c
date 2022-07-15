@@ -1,9 +1,9 @@
-#include "framebuffer.h"
+#include <framebuffer.h>
 #include <boot.h>
 
 
 
-
+struct fb_info fb_info;
 
 void fb_init()
 {

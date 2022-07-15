@@ -19,6 +19,8 @@ struct PSF1_FONT{
 	void* glyphBuffer;
 };
 
+extern struct fb_info fb_info;
+
 extern uint8_t _binary_zapl16_psf_start;
 extern uint8_t _binary_zapl16_psf_end;
 
