@@ -279,11 +279,11 @@ void vmm_init()
 
         flags |= PTE_PRESENT;
         
-        DEBUG_MSG("Base: %p  Length: %x  Flags: %x\n", boot_info.tag_pmrs->pmrs[i].base, boot_info.tag_pmrs->pmrs[i].length, boot_info.tag_pmrs->pmrs[i].permissions);
+        //DEBUG_MSG("Base: %p  Length: %x  Flags: %x\n", boot_info.tag_pmrs->pmrs[i].base, boot_info.tag_pmrs->pmrs[i].length, boot_info.tag_pmrs->pmrs[i].permissions);
         for(uint64_t j = 0; j < boot_info.tag_pmrs->pmrs[i].length; j+=0x1000)
         {
             vmm_map_4Kpage(RootPageDirectory, virt + j, phys + j, flags);
-            DEBUG_MSG("Kernel : %p %p %x\n", virt + j, phys + j, flags); 
+            //DEBUG_MSG("Kernel : %p %p %x\n", virt + j, phys + j, flags); 
         } 
     }
 
@@ -345,10 +345,10 @@ void vmm_init()
 
     //printf("%p, %p, %p, %p", a,b,c,d);
 
-    vmm_PMLwalk(kernel_cr3);
+    //vmm_PMLwalk(kernel_cr3);
 
-    DEBUG_MSG("New PML4\n");
-    vmm_PMLwalk(RootPageDirectory);
+    //DEBUG_MSG("New PML4\n");
+    //vmm_PMLwalk(RootPageDirectory);
 
     //vmm_map_page(kernel_cr3, 0xFFFFFFFFC0001000, (uint64_t)pmm_allocpage(), PTE_PRESENT | PTE_READWRITE);
     //uint64_t* value = (uint64_t*)0xFFFFFFFFC0001000;

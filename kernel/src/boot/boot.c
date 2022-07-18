@@ -1,7 +1,8 @@
 #include <stdint.h>
 #include <stddef.h>
+#include <boot.h>
 
-struct boot_info boot_info;
+struct bootinfo_t boot_info;
 
 void _elf_start()
 {

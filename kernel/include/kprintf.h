@@ -36,7 +36,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -62,6 +61,7 @@ void _putchar(char character);
  */
 void serial_printf(uint16_t port, const char* format, ...);
 
+void bootloader_printf(const char* format, ...);
 
 /**
  * Tiny printf implementation

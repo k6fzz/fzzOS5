@@ -3,7 +3,7 @@
 
 #include <limine.h>
 
-#include <bootinfo.h>
+#include <boot.h>
 
 #define SECTION_LIMINE __attribute__((section(".limine_reqs"), used))
 
@@ -16,12 +16,12 @@ static volatile struct limine_bootloader_info_request bootloader_info =
     .revision = 0
 };
 
-static volatile struct limine_stack_size_request stack_request =
-{
-    .id = LIMINE_STACK_SIZE_REQUEST,
-    .revision = 0,
-    .stack_size = 4096,
-};
+//static volatile struct limine_stack_size_request stack_request =
+//{
+//    .id = LIMINE_STACK_SIZE_REQUEST,
+//    .revision = 0,
+//    .stack_size = 4096,
+//};
 
 static volatile struct limine_hhdm_request hhdm_request =
 {
@@ -54,10 +54,16 @@ static volatile struct limine_entry_point_request entry_point_request =
     .entry = &_limine_start
 };
 
+static volatile struct limine_terminal_request terminal_request =
+{
+    .id = LIMINE_TERMINAL_REQUEST,
+    .revision = 0,
+};
+
 SECTION_LIMINE static uint64_t reqs[10] = 
 {
     (uint64_t)&bootloader_info,
-    (uint64_t)&stack_request,
+    //(uint64_t)&stack_request,
     (uint64_t)&hhdm_request,
     (uint64_t)&fb_request,
     (uint64_t)&mmap_request,
@@ -69,8 +75,8 @@ SECTION_LIMINE static uint64_t reqs[10] =
 void _limine_start()
 {
 
-    boot_info.protocol = LIMINE;
-    boot_info.pmm_info
+    boot_info.type = LIMINE;
+    //boot_info.limine_terminal = terminal_request.response->terminals[0];
 
 
     for(;;)

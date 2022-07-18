@@ -16,6 +16,7 @@ UTILDIR = ../util
 INITDIR = ../init
 
 LIMINEEFI := $(LIMINE)/main.efi
+LIMINE3EFI := $(LIMINE)/limine3/BOOTX64.EFI
 
 LDS = $(SRCDIR)/kernel.ld
 CC = $(CCDIR)/x86_64-elf-gcc 
@@ -120,19 +121,16 @@ buildimg:
 	mcopy -i $(BUILDDIR)/$(OSNAME).img $(BUILDDIR)/kernel.elf ::
 	mcopy -i $(BUILDDIR)/$(OSNAME).img $(INITDIR)/init.elf ::
 
-bochsimg:
-	#2/16/63
-	dd if=/dev/zero of=$(BUILDDIR)/$(OSNAME)bochs.img bs=512 count=2016
-	mpartition -I -s 63 -t 16 -h 2 r:
-	mpartition -cpv -s 63 -t 16 -h 2 r:
-	mformat -i $(BUILDDIR)/$(OSNAME)bochs.img ::
-	
-	mmd -i $(BUILDDIR)/$(OSNAME)bochs.img ::/BOOT
-	mcopy -i $(BUILDDIR)/$(OSNAME)bochs.img $(LIMINE)/bin/limine.sys ::/BOOT
-	mcopy -i $(BUILDDIR)/$(OSNAME)bochs.img $(STIVALE)/limine.cfg ::/BOOT
-	mcopy -i $(BUILDDIR)/$(OSNAME)bochs.img $(BUILDDIR)/kernel.elf ::
-	$(LIMINE)/bin/limine-install-linux-x86_64 $(BUILDDIR)/$(OSNAME)bochs.img
-
+buildlimine:
+	dd if=/dev/zero of=$(BUILDDIR)/$(OSNAME).img bs=512 count=2016
+	mformat -i $(BUILDDIR)/$(OSNAME).img ::
+	mmd -i $(BUILDDIR)/$(OSNAME).img ::/EFI
+	mmd -i $(BUILDDIR)/$(OSNAME).img ::/EFI/BOOT
+	mcopy -i $(BUILDDIR)/$(OSNAME).img $(LIMINE3EFI) ::/EFI/BOOT
+	mcopy -i $(BUILDDIR)/$(OSNAME).img $(LIMINE)/limine3/limine.cfg ::/EFI/BOOT/
+	mcopy -i $(BUILDDIR)/$(OSNAME).img startup.nsh ::
+	mcopy -i $(BUILDDIR)/$(OSNAME).img $(BUILDDIR)/kernel.elf ::
+	mcopy -i $(BUILDDIR)/$(OSNAME).img $(INITDIR)/init.elf ::
 
 clean:
 	rm -rf $(OBJDIR)/*

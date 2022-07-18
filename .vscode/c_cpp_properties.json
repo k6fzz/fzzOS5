@@ -4,10 +4,12 @@
             "name": "fzzOS - Kernelspace",
             "includePath": [
                 "${default}",
-                "${workspaceFolder}/kernel/include/**"
+                "${workspaceFolder}/kernel/include"
             ],
-            "defines": ["__DEBUG__"],
-            "compilerPath": "./crosscompiler/bin",
+            "defines": [
+                "__DEBUG__"
+            ],
+            "compilerPath": "/usr/bin/gcc",
             "cStandard": "gnu17",
             "cppStandard": "gnu++14",
             "intelliSenseMode": "linux-gcc-x64",
@@ -17,7 +19,8 @@
             "name": "fzzOS - Userspace",
             "includePath": [
                 "${default}",
-                "${workspaceFolder}/libc/include/**"
+                "${workspaceFolder}/libc/include/**",
+                "${workspaceFolder}/kernel/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

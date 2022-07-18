@@ -6,7 +6,7 @@ extern __attribute__((noreturn)) void kernel();
 
 uint8_t stack[4096];
 
-struct bootinfo_t boot_info;
+
 
 //Request a terminal
 static struct stivale2_header_tag_terminal terminal_hdr_tag = {
@@ -65,9 +65,11 @@ static void *stivale2_get_tag(struct stivale2_struct *stivale2_struct, uint64_t 
 //Entry point. We're going to make sure the bootloader did what it's supposed to do, then pass off to the kernel.
 void _start(struct stivale2_struct* stivale2_struct)
 {
+    boot_info.type = STIVALE2;
+
     // Let's get the terminal structure tag from the bootloader.
-    //struct stivale2_struct_tag_terminal *term_str_tag;
-    //term_str_tag = stivale2_get_tag(stivale2_struct, STIVALE2_STRUCT_TAG_TERMINAL_ID);
+    struct stivale2_struct_tag_terminal *term_str_tag;
+    term_str_tag = stivale2_get_tag(stivale2_struct, STIVALE2_STRUCT_TAG_TERMINAL_ID);
 
     // Check if the tag was actually found.
     //if (term_str_tag == NULL) {
@@ -78,10 +80,13 @@ void _start(struct stivale2_struct* stivale2_struct)
     //}
 
     //void* term_write_ptr = (void *)term_str_tag->term_write;
-    //term_write = term_write_ptr;
+    //stivale_term_write = term_write_ptr;
     //printf("Terminal Initialized\n");
-
+   
     //Grab the Framebuffer
+
+    
+
     boot_info.tag_framebuffer = stivale2_get_tag(stivale2_struct, STIVALE2_STRUCT_TAG_FRAMEBUFFER_ID);
     if (boot_info.tag_framebuffer == NULL)
     {

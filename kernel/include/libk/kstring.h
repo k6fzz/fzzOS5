@@ -33,3 +33,14 @@ static inline int memcmp(const void* str1, const void* str2, size_t n)
 
     return (*((uint8_t*)str1) - *((uint8_t*)str2));
 }
+
+static inline uint64_t strlen(const char* str)
+{
+    uint64_t count = 0;
+    while(*str != 0)
+    {
+        count++;
+        str++;
+    }
+    return count;
+}

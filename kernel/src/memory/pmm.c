@@ -4,6 +4,7 @@
 #include <boot.h>
 #include <debug.h>
 #include <stivale2.h>
+#include <limine.h>
 //#include "bitmap.h"
 
 
