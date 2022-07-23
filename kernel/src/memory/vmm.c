@@ -48,11 +48,10 @@ struct PageTable* vmm_create_page_table()
     if(page == NULL) return NULL;   //If it's null, we can't continue
 
     memset((uint8_t*)page, 0, 4096);    //clear the page
-    struct PageTable* ret = phys_to_hh_data((uint64_t)page);
-    DEBUG_MSG("PageTable %p  %p", page, ret);
-    return ret;
-    
-    //return (struct PageTable*)phys_to_hh_data((uint64_t)page);
+    //struct PageTable* ret = phys_to_hh_data((uint64_t)page);
+    DEBUG_MSG("PageTable %p  \n", page);
+        
+    return (struct PageTable*)page;
 }
 
 static inline struct PageTable* vmm_get_pagemap(struct PageTable* pagemap, uint64_t index, uint64_t flags)
@@ -93,7 +92,7 @@ void vmm_map_1Gpage(struct PageTable* pagetable, uint64_t virtual, uint64_t phys
 void vmm_map_2Mpage(struct PageTable* pagetable, uint64_t virtual, uint64_t physical, uint64_t flags)
 {
     uint64_t vaddr = virtual;
-    uint64_t paddr = physical;
+    uint64_t paddr = physical & ~(0xFFF);
     uint64_t index2, index3, index4;
     vaddr >>= 12;
     //index1 = vaddr & 0x1ff;
@@ -112,15 +111,16 @@ void vmm_map_2Mpage(struct PageTable* pagetable, uint64_t virtual, uint64_t phys
     PML3 = vmm_get_pagemap(PML4, index4, flags);
     PML2 = vmm_get_pagemap(PML3, index3, flags);
 
-    paddr &= 
+    
 
-    PML2->entry[index2] = physical | flags | PTE_PAGESIZE;
+    PML2->entry[index2] = paddr | flags | PTE_PAGESIZE;
 }
 
 void vmm_map_4Kpage(struct PageTable* pagetable, uint64_t virtual, uint64_t physical, uint64_t flags)
 {
     //Get the indices for the virtual page
     uint64_t vaddr = virtual;
+    uint64_t paddr = physical & ~(0xFFF);
     uint64_t index1, index2, index3, index4;
     vaddr >>= 12;
     index1 = vaddr & 0x1ff;
@@ -283,24 +283,12 @@ void vmm_init()
     printf("Kernel Offset: %x\n", kernel_offset);
     printf("Kernel Size: %x\n", kernel_size);
 
-    uint64_t aligned_size = (kernel_size + 0x1000) & ~(0xFFF);
+    uint64_t aligned_size = (kernel_size + 0x20000) & ~(0x1FFFFF);
 
     printf("Aligned Size: %x\n", aligned_size);
 
-    for(uint64_t i = 0; i < aligned_size; i+=0x1000)
-    {
-        vmm_map_4Kpage(RootPageDirectory, kernel_virtual + i, kernel_physical + i, PTE_PRESENT | PTE_READWRITE);
-    }
-
-/*PMRS Permissions -
-    0 - ---
-    1 - --E
-    2 - -W-
-    3 - -WE
-    4 - R--
-    5 - R-E
-    6 - RWE
-*/
+    vmm_map_2Mpage(RootPageDirectory, kernel_virtual, kernel_physical, PTE_PRESENT | PTE_READWRITE);
+    
 
 /*PTE Permissions
     PTE_PRESENT             Present if Set
@@ -356,8 +344,8 @@ void vmm_init()
 
     //printf("Root = %p\n", RootPageDirectory);
 
-    //RootPageDirectory->entry[256] = kernel_cr3->entry[256];
-    //RootPageDirectory->entry[511] = kernel_cr3->entry[511];
+    RootPageDirectory->entry[256] = kernel_cr3->entry[256];
+    RootPageDirectory->entry[511] = kernel_cr3->entry[511];
 
     //vmm_map_4Kpage(RootPageDirectory, 0xFFFFFFFFC0001000, (uint64_t)pmm_allocpage(), PTE_PRESENT | PTE_READWRITE | PTE_USER_SUPERVISOR);
 
@@ -372,23 +360,11 @@ void vmm_init()
     printf("HHDM: %p\n", boot_info.tag_hhdm->addr);
     uint64_t hhdm_addr = boot_info.tag_hhdm->addr;
     
-    for(uint64_t i = 0; i < (4 * GB); i += GB)
-    {
-        vmm_map_1Gpage(RootPageDirectory, hhdm_addr + i, i, PTE_PRESENT | PTE_READWRITE);
-    }
-    
-    /*
-    for(uint64_t i = 0; i < pmm_info.totalmem ; i+=0x1000)
-    {   
-        vmm_map_4Kpage(RootPageDirectory, (boot_info.tag_hhdm->addr + i), i, PTE_PRESENT | PTE_READWRITE);
-    }
-    */
     DEBUG_MSG("New CR3: %p -- & %p \n", (uint64_t)RootPageDirectory, &RootPageDirectory);
     printf("New CR3: %p -- & %p \n", (uint64_t)RootPageDirectory, &RootPageDirectory);
 
     //Load new CR3
     vmm_write_cr3((uint64_t)RootPageDirectory);
-
     DEBUG_MSG("CR3 Loaded\n");
 
     //serial_printf(SERIAL_PORT1, "New PML4\r\n");
