@@ -204,7 +204,7 @@ void* pmm_allocpage()
 
     pmm_info.usedpages++;
 
-    DEBUG_MSG("PMM ALLOC: %p\n", (index * PAGE_SIZE));
+    //DEBUG_MSG("PMM ALLOC: %p\n", (index * PAGE_SIZE));
 
     return (void*)(index * PAGE_SIZE);
 }

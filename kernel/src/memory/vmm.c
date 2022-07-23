@@ -8,9 +8,13 @@
 #include <debug.h>
 #include <framebuffer.h>
 #include <serial.h>
+#include <cpuid.h>
 
 #define VMM_START_OF_FB     0xC0000000
 #define VMM_SIZE_OF_FB      0x7E9000
+#define KB                  0x400UL
+#define MB                  0x100000UL
+#define GB                  0x40000000UL
 
 extern uint8_t* _start_of_kernel, 
     _start_of_text,
@@ -44,7 +48,9 @@ struct PageTable* vmm_create_page_table()
     if(page == NULL) return NULL;   //If it's null, we can't continue
 
     memset((uint8_t*)page, 0, 4096);    //clear the page
-    return (struct PageTable*)phys_to_hh_data((uint64_t)page);
+    struct PageTable* ret = phys_to_hh_data((uint64_t)page);
+    DEBUG_MSG("PageTable %p  %p", page, ret);
+    return ret;
     
     //return (struct PageTable*)phys_to_hh_data((uint64_t)page);
 }
@@ -65,9 +71,29 @@ static inline struct PageTable* vmm_get_pagemap(struct PageTable* pagemap, uint6
     }
 }
 
+void vmm_map_1Gpage(struct PageTable* pagetable, uint64_t virtual, uint64_t physical, uint64_t flags)
+{
+    uint64_t vaddr = virtual;
+    uint64_t index4, index3;
+    vaddr >>= 12;
+    vaddr >>= 9;
+    vaddr >>= 9;
+    index3 = vaddr & 0x1ff;
+    vaddr >>= 9;
+    index4 = vaddr & 0x1ff;
+
+    struct PageTable* PML4;
+    struct PageTable* PML3;
+
+    PML4 = pagetable;
+    PML3 = vmm_get_pagemap(PML4, index4, flags);
+    PML3->entry[index3] = physical | flags | PTE_PAGESIZE;
+}
+
 void vmm_map_2Mpage(struct PageTable* pagetable, uint64_t virtual, uint64_t physical, uint64_t flags)
 {
     uint64_t vaddr = virtual;
+    uint64_t paddr = physical;
     uint64_t index2, index3, index4;
     vaddr >>= 12;
     //index1 = vaddr & 0x1ff;
@@ -85,6 +111,8 @@ void vmm_map_2Mpage(struct PageTable* pagetable, uint64_t virtual, uint64_t phys
     PML4 = pagetable;
     PML3 = vmm_get_pagemap(PML4, index4, flags);
     PML2 = vmm_get_pagemap(PML3, index3, flags);
+
+    paddr &= 
 
     PML2->entry[index2] = physical | flags | PTE_PAGESIZE;
 }
@@ -248,6 +276,22 @@ void vmm_init()
     uint64_t kernel_virtual = boot_info.tag_kernel_base_address->virtual_base_address;
     uint64_t kernel_offset = kernel_virtual - kernel_physical;
 
+    uint64_t kernel_size =   (uint64_t)&_end_of_kernel - (uint64_t)&_start_of_kernel;
+
+    printf("Kernel Physical Base Address %x\n", kernel_physical);
+    printf("Kernel Virtual Base Address  %x\n", kernel_virtual);
+    printf("Kernel Offset: %x\n", kernel_offset);
+    printf("Kernel Size: %x\n", kernel_size);
+
+    uint64_t aligned_size = (kernel_size + 0x1000) & ~(0xFFF);
+
+    printf("Aligned Size: %x\n", aligned_size);
+
+    for(uint64_t i = 0; i < aligned_size; i+=0x1000)
+    {
+        vmm_map_4Kpage(RootPageDirectory, kernel_virtual + i, kernel_physical + i, PTE_PRESENT | PTE_READWRITE);
+    }
+
 /*PMRS Permissions -
     0 - ---
     1 - --E
@@ -265,7 +309,12 @@ void vmm_init()
     PTE_EXECUTE_DISABLE     Disables execute if set (if EFER:11 is set)
 */
 
-    for(uint64_t i = 0; i < boot_info.tag_pmrs->entries; i++)
+
+
+
+
+
+/*    for(uint64_t i = 0; i < boot_info.tag_pmrs->entries; i++)
     {
         uint64_t virt = boot_info.tag_pmrs->pmrs[i].base;
         uint64_t phys = virt - kernel_offset;
@@ -286,7 +335,7 @@ void vmm_init()
             //DEBUG_MSG("Kernel : %p %p %x\n", virt + j, phys + j, flags); 
         } 
     }
-
+*/
 
     //uint64_t kernel_phys = boot_info.tag_kernel_base_address->physical_base_address;
     //uint64_t kernel_virt = boot_info.tag_kernel_base_address->virtual_base_address;
@@ -321,18 +370,26 @@ void vmm_init()
 
     //Map Physical Memory to 0xFFFF8...
     printf("HHDM: %p\n", boot_info.tag_hhdm->addr);
+    uint64_t hhdm_addr = boot_info.tag_hhdm->addr;
+    
+    for(uint64_t i = 0; i < (4 * GB); i += GB)
+    {
+        vmm_map_1Gpage(RootPageDirectory, hhdm_addr + i, i, PTE_PRESENT | PTE_READWRITE);
+    }
+    
+    /*
     for(uint64_t i = 0; i < pmm_info.totalmem ; i+=0x1000)
     {   
         vmm_map_4Kpage(RootPageDirectory, (boot_info.tag_hhdm->addr + i), i, PTE_PRESENT | PTE_READWRITE);
     }
-
+    */
     DEBUG_MSG("New CR3: %p -- & %p \n", (uint64_t)RootPageDirectory, &RootPageDirectory);
     printf("New CR3: %p -- & %p \n", (uint64_t)RootPageDirectory, &RootPageDirectory);
 
     //Load new CR3
-    //vmm_write_cr3((uint64_t)RootPageDirectory);
+    vmm_write_cr3((uint64_t)RootPageDirectory);
 
-    //DEBUG_MSG("CR3 Loaded\n");
+    DEBUG_MSG("CR3 Loaded\n");
 
     //serial_printf(SERIAL_PORT1, "New PML4\r\n");
 

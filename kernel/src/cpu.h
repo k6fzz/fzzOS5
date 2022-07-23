@@ -1,7 +1,7 @@
 #pragma once
 #include <stddef.h>
 #include <stdint.h>
-
+#include <cpuid.h>
 
 struct RegisterContext {
     uint64_t r15;
@@ -26,3 +26,4 @@ struct RegisterContext {
     uint64_t rsp;
     uint64_t ss;
 };
+
